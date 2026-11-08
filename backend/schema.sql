@@ -1,0 +1,132 @@
+CREATE DATABASE IF NOT EXISTS theviiisalon;
+USE theviiisalon;
+
+CREATE TABLE admins (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(190) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  role ENUM('ADMIN','SUPER_ADMIN') NOT NULL DEFAULT 'ADMIN',
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE admin_otps (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  admin_id INT NOT NULL,
+  otp_hash VARCHAR(255) NOT NULL,
+  expires_at DATETIME NOT NULL,
+  attempts TINYINT UNSIGNED NOT NULL DEFAULT 0,
+  used_at DATETIME NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (admin_id) REFERENCES admins(id),
+  INDEX idx_admin_otp_expiry (admin_id, expires_at, used_at)
+);
+
+CREATE TABLE service_categories (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(120) NOT NULL UNIQUE,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE services (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  category_id INT NOT NULL,
+  service_name VARCHAR(180) NOT NULL,
+  description TEXT,
+  price DECIMAL(10,2) NOT NULL,
+  duration_minutes SMALLINT UNSIGNED NOT NULL,
+  image_url VARCHAR(500),
+  is_featured BOOLEAN NOT NULL DEFAULT FALSE,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (category_id) REFERENCES service_categories(id),
+  INDEX idx_services_active (is_active, category_id)
+);
+
+CREATE TABLE customers (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  full_name VARCHAR(160) NOT NULL,
+  phone VARCHAR(20) NOT NULL UNIQUE,
+  whatsapp_number VARCHAR(20),
+  email VARCHAR(190),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE bookings (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  reference VARCHAR(32) NOT NULL UNIQUE,
+  customer_id INT NOT NULL,
+  service_id INT NOT NULL,
+  service_name_snapshot VARCHAR(180) NOT NULL,
+  price_snapshot DECIMAL(10,2) NOT NULL,
+  duration_snapshot SMALLINT UNSIGNED NOT NULL,
+  appointment_date DATE NOT NULL,
+  appointment_time TIME NOT NULL,
+  status ENUM('PENDING','CONFIRMED','COMPLETED','CANCELLED','REJECTED') NOT NULL DEFAULT 'PENDING',
+  notes TEXT,
+  internal_notes TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (customer_id) REFERENCES customers(id),
+  FOREIGN KEY (service_id) REFERENCES services(id),
+  UNIQUE KEY uq_appointment_slot (appointment_date, appointment_time),
+  INDEX idx_booking_status_date (status, appointment_date)
+);
+
+CREATE TABLE business_settings (
+  setting_key VARCHAR(100) PRIMARY KEY,
+  setting_value TEXT NOT NULL,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE notification_logs (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  booking_id BIGINT,
+  channel ENUM('WHATSAPP','EMAIL') NOT NULL,
+  recipient VARCHAR(190) NOT NULL,
+  event_name VARCHAR(80) NOT NULL,
+  status ENUM('PENDING','SENT','FAILED') NOT NULL,
+  provider_message_id VARCHAR(190),
+  error_message TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (booking_id) REFERENCES bookings(id)
+);
+
+CREATE TABLE salon_gallery (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  image_url VARCHAR(500) NOT NULL,
+  description VARCHAR(255),
+  is_featured BOOLEAN NOT NULL DEFAULT FALSE,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE contact_enquiries (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  full_name VARCHAR(160) NOT NULL,
+  email VARCHAR(190) NOT NULL,
+  phone VARCHAR(20),
+  message TEXT NOT NULL,
+  status ENUM('OPEN','RESOLVED') NOT NULL DEFAULT 'OPEN',
+  internal_notes TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_enquiries_status (status, created_at)
+);
+
+CREATE TABLE appointment_rules (
+  id INT PRIMARY KEY DEFAULT 1,
+  opening_time TIME NOT NULL DEFAULT '10:00:00',
+  closing_time TIME NOT NULL DEFAULT '20:00:00',
+  slot_interval_minutes SMALLINT UNSIGNED NOT NULL DEFAULT 30,
+  buffer_minutes SMALLINT UNSIGNED NOT NULL DEFAULT 15,
+  closed_days VARCHAR(50) NOT NULL DEFAULT '[]',
+  cancellation_policy TEXT,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
