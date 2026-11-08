@@ -1,0 +1,72 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600;700&display=swap");
+
+:root {
+  --color-bg-deep: #120407;
+  --color-bg-burgundy: #220811;
+  --color-bg-surface: #2c0e18;
+  --color-bg-card: rgba(44, 14, 24, 0.72);
+  --color-gold: #e5b95f;
+  --color-gold-light: #fbe6a2;
+  --color-gold-dark: #b8862d;
+  --color-gold-glow: rgba(229, 185, 95, 0.35);
+  --color-text-light: #f9f5f0;
+  --color-text-muted: #c4adb3;
+  --font-serif: "Cormorant Garamond", Georgia, serif;
+  --font-sans: "Montserrat", -apple-system, BlinkMacSystemFont, sans-serif;
+  --transition-smooth: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  --radius-lg: 24px;
+  --radius-md: 14px;
+  --radius-pill: 999px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-bg-deep);
+  color: var(--color-text-light);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Global Gold Shimmer */
+.gold-shimmer {
+  background: linear-gradient(120deg, #d4af37 0%, #fbe6a2 35%, #b8862d 70%, #ffd700 100%);
+  background-size: 220% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: shimmerAnim 6s linear infinite;
+}
+
+@keyframes shimmerAnim {
+  0% { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+/* Shared Luxury Pill Badge */
+.luxury-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--color-gold);
+  border: 1px solid rgba(229, 185, 95, 0.3);
+  padding: 6px 18px;
+  border-radius: var(--radius-pill);
+  background: rgba(229, 185, 95, 0.06);
+  backdrop-filter: blur(10px);
+  margin-bottom: 1.25rem;
+  font-weight: 600;
+}

@@ -1,0 +1,11 @@
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background-color: var(--color-bg-deep);
+}
+
+main {
+  flex: 1;
+}

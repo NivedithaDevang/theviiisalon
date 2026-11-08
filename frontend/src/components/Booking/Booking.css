@@ -1,0 +1,83 @@
+.booking-section {
+  padding: 6.5rem 6%;
+  background: radial-gradient(circle at 80% 50%, rgba(77, 18, 36, 0.45) 0%, transparent 65%);
+}
+
+.booking-card {
+  max-width: 680px;
+  margin: 0 auto;
+  background: rgba(39, 12, 20, 0.78);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(229, 185, 95, 0.28);
+  padding: 3.5rem 3rem;
+  border-radius: var(--radius-lg);
+  text-align: center;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+}
+
+.booking-card h2 {
+  font-family: var(--font-serif);
+  font-size: 2.7rem;
+  margin-bottom: 0.6rem;
+}
+
+.booking-sub {
+  color: var(--color-text-muted);
+  margin-bottom: 2.2rem;
+  font-size: 0.95rem;
+}
+
+.booking-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+}
+
+.booking-form input,
+.booking-form select {
+  width: 100%;
+  background: rgba(22, 7, 10, 0.75);
+  border: 1px solid rgba(229, 185, 95, 0.25);
+  color: var(--color-text-light);
+  padding: 14px 18px;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  outline: none;
+  transition: var(--transition-smooth);
+}
+
+.booking-form input:focus,
+.booking-form select:focus {
+  border-color: var(--color-gold);
+  box-shadow: 0 0 14px rgba(229, 185, 95, 0.35);
+}
+
+.booking-form select option {
+  background: #1e0910;
+  color: #fff;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.form-footer-note {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin-top: 0.6rem;
+}
+
+@media (max-width: 600px) {
+  .booking-card {
+    padding: 2.5rem 1.5rem;
+  }
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}

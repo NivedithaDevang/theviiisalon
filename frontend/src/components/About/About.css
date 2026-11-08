@@ -1,0 +1,209 @@
+.about-section {
+  position: relative;
+  overflow: hidden;
+  padding: 5.5rem 6%;
+  background: radial-gradient(circle at 80% 30%, rgba(58, 14, 27, 0.45) 0%, transparent 60%),
+              linear-gradient(180deg, var(--color-bg-deep) 0%, var(--color-bg-burgundy) 50%, var(--color-bg-deep) 100%);
+}
+
+.about-bloom-left {
+  position: absolute;
+  top: 20%;
+  left: -8%;
+  width: 440px;
+  height: 440px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(229, 185, 95, 0.12) 0%, transparent 70%);
+  filter: blur(80px);
+  pointer-events: none;
+}
+
+.about-bloom-right {
+  position: absolute;
+  bottom: 10%;
+  right: -5%;
+  width: 440px;
+  height: 440px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(140, 24, 52, 0.22) 0%, transparent 70%);
+  filter: blur(90px);
+  pointer-events: none;
+}
+
+.about-inner {
+  max-width: 1140px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  align-items: center;
+  gap: 4rem;
+  position: relative;
+  z-index: 2;
+}
+
+.about-story-col {
+  text-align: left;
+}
+
+.about-headline {
+  font-family: var(--font-serif);
+  font-size: clamp(2.3rem, 3.8vw, 3.4rem);
+  line-height: 1.16;
+  margin-bottom: 1.4rem;
+  color: var(--color-text-light);
+  font-weight: 500;
+}
+
+.about-lead {
+  font-size: 1.05rem;
+  color: var(--color-text-light);
+  line-height: 1.8;
+  margin-bottom: 1rem;
+  font-weight: 400;
+}
+
+.about-lead strong {
+  color: var(--color-gold);
+}
+
+.about-narrative {
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+  line-height: 1.8;
+}
+
+.about-card-col {
+  display: flex;
+  justify-content: center;
+}
+
+.about-luxury-plaque {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  background: rgba(35, 10, 19, 0.65);
+  border: 1px solid rgba(229, 185, 95, 0.25);
+  border-radius: 26px;
+  padding: 2.8rem 2.2rem;
+  text-align: center;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.plaque-glow {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(229, 185, 95, 0.18) 0%, transparent 70%);
+  top: 15%;
+  pointer-events: none;
+  filter: blur(40px);
+}
+
+.infinity-crest {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 1.2rem;
+}
+
+.crest-symbol {
+  font-family: var(--font-serif);
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-gold);
+  letter-spacing: 3px;
+  line-height: 1;
+}
+
+.crest-infinity {
+  font-family: var(--font-serif);
+  font-size: 2.2rem;
+  color: var(--color-gold-light);
+  line-height: 1;
+  opacity: 0.85;
+}
+
+.plaque-title {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  letter-spacing: 2px;
+  color: var(--color-gold-light);
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.plaque-quote {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  line-height: 1.7;
+  margin-bottom: 1.8rem;
+}
+
+.founder-sign-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+
+.signature-line {
+  width: 50px;
+  height: 1px;
+  background: rgba(229, 185, 95, 0.35);
+  margin-bottom: 0.8rem;
+}
+
+.founder-name {
+  font-family: var(--font-serif);
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--color-text-light);
+  letter-spacing: 1px;
+}
+
+.founder-role {
+  font-size: 0.7rem;
+  letter-spacing: 2px;
+  color: var(--color-gold);
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.plaque-footer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.65rem;
+  letter-spacing: 2px;
+  color: var(--color-text-muted);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 1rem;
+  width: 100%;
+  justify-content: center;
+}
+
+@media (max-width: 960px) {
+  .about-inner {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+    text-align: center;
+  }
+  .about-story-col {
+    text-align: center;
+  }
+  .about-narrative,
+  .about-lead {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 600px;
+  }
+}
