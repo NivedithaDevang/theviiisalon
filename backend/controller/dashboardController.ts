@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import { pool } from "../config/database.js";
+import { database } from "../config/database.js";
 import { RowDataPacket } from "mysql2";
 
 export const getDashboardMetrics = async (_req: Request, res: Response): Promise<void> => {
-  const [counts] = await pool.query<RowDataPacket[]>(`
+  const [counts] = await database.query<RowDataPacket[]>(`
     SELECT 
       COUNT(*) AS totalBookings,
       SUM(CASE WHEN status = 'PENDING' THEN 1 ELSE 0 END) AS pending,
@@ -13,10 +13,10 @@ export const getDashboardMetrics = async (_req: Request, res: Response): Promise
     FROM bookings
   `);
 
-  const [activeServices] = await pool.query<RowDataPacket[]>(
+  const [activeServices] = await database.query<RowDataPacket[]>(
     "SELECT COUNT(*) as count FROM services WHERE is_active = TRUE"
   );
-  const [registeredClients] = await pool.query<RowDataPacket[]>(
+  const [registeredClients] = await database.query<RowDataPacket[]>(
     "SELECT COUNT(*) as count FROM users WHERE role = 'client'"
   );
 

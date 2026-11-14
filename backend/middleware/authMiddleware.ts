@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { pool } from "../config/database.js";
+import { database } from "../config/database.js";
 import { UserRow } from "../model/authModel.js";
 
 export interface AuthenticatedUser {
@@ -46,7 +46,7 @@ export const authenticate = async (
     const decoded = jwt.verify(token, secret) as JwtPayload;
 
     // 3. Ensure user exists in MySQL
-    const [rows] = await pool.query<UserRow[]>(
+    const [rows] = await database.query<UserRow[]>(
       "SELECT id, name, email, role FROM users WHERE id = ?",
       [decoded.id]
     );

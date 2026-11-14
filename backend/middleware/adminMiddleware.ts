@@ -1,12 +1,8 @@
 import { Response, NextFunction } from "express";
 import { AuthRequest } from "../middleware/authMiddleware.js";
-import { pool } from "../config/database.js";
+import { database } from "../config/database.js";
 import { UserRow } from "../model/authModel.js";
 
-/**
- * Middleware to restrict endpoints exclusively to salon management / owners.
- * Must be executed AFTER authenticate middleware: [authenticate, requireAdmin]
- */
 export const requireAdmin = async (
   req: AuthRequest,
   res: Response,
@@ -32,7 +28,7 @@ export const requireAdmin = async (
     }
 
     // 3. Database check to verify role status in MySQL
-    const [rows] = await pool.query<UserRow[]>(
+    const [rows] = await database.query<UserRow[]>(
       "SELECT id, role FROM users WHERE id = ? AND role = 'admin' LIMIT 1",
       [req.user.id]
     );

@@ -3,7 +3,7 @@ import { OAuth2Client } from "google-auth-library";
 import bcrypt from "bcryptjs";
 import crypto from "node:crypto";
 import jwt from "jsonwebtoken";
-import { pool } from "../config/database.js";
+import { database } from "../config/database.js";
 import { UserRow } from "../model/authModel.js";
 import {AuthRequest} from "../middleware/authMiddleware.js";
 import { sendAdminOTP } from "../services/emailService.js";
@@ -33,13 +33,13 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
     }
 
     const email = payload.email.toLowerCase();
-    const [existing] = await pool.query<UserRow[]>("SELECT * FROM users WHERE email = ?", [email]);
+    const [existing] = await database.query<UserRow[]>("SELECT * FROM users WHERE email = ?", [email]);
 
     let userId: number;
     let role = "client";
 
     if (existing.length === 0) {
-      const [insertResult] = await pool.query<ResultSetHeader>(
+      const [insertResult] = await database.query<ResultSetHeader>(
         "INSERT INTO users (name, email, google_id, avatar, role) VALUES (?, ?, ?, ?, 'client')",
         [payload.name || "Salon Guest", email, payload.sub, payload.picture || ""]
       );
@@ -79,12 +79,12 @@ export const requestAdminLogin = async (req: Request, res: Response): Promise<vo
       return;
     }
 
-    const [rows] = await pool.query<UserRow[]>("SELECT * FROM users WHERE email = ?", [adminEmail]);
+    const [rows] = await database.query<UserRow[]>("SELECT * FROM users WHERE email = ?", [adminEmail]);
 
     if (rows.length === 0) {
       const defaultPassword = process.env.ADMIN_DEFAULT_PASSWORD || "TheVIII@2026";
       const hashedPassword = await bcrypt.hash(defaultPassword, 10);
-      await pool.query(
+      await database.query(
         "INSERT INTO users (name, email, password, role) VALUES ('Keerthi', ?, ?, 'admin')",
         [adminEmail, hashedPassword]
       );
@@ -100,7 +100,7 @@ export const requestAdminLogin = async (req: Request, res: Response): Promise<vo
     const otpHash = crypto.createHash("sha256").update(rawOtp).digest("hex");
     const expires = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
 
-    await pool.query(
+    await database.query(
       "UPDATE users SET admin_otp_hash = ?, admin_otp_expires = ? WHERE email = ?",
       [otpHash, expires, adminEmail]
     );
@@ -118,7 +118,7 @@ export const requestAdminLogin = async (req: Request, res: Response): Promise<vo
 export const verifyAdminOTP = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, otp } = req.body;
-    const [rows] = await pool.query<UserRow[]>(
+    const [rows] = await database.query<UserRow[]>(
       "SELECT * FROM users WHERE email = ?",
       [email.toLowerCase()]
     );
@@ -141,7 +141,7 @@ export const verifyAdminOTP = async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    await pool.query(
+    await database.query(
       "UPDATE users SET admin_otp_hash = NULL, admin_otp_expires = NULL WHERE id = ?",
       [admin.id]
     );
@@ -164,7 +164,7 @@ export const verifyAdminOTP = async (req: Request, res: Response): Promise<void>
 };
 
 export const getMe = async (req: AuthRequest, res: Response): Promise<void> => {
-  const [rows] = await pool.query<UserRow[]>(
+  const [rows] = await database.query<UserRow[]>(
     "SELECT id, name, email, phone, avatar, role, created_at FROM users WHERE id = ?",
     [req.user?.id]
   );

@@ -1,12 +1,9 @@
 import React from "react";
-import { Lock, Sparkles } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Lock } from "lucide-react";
 import "./Footer.css";
 
-interface FooterProps {
-  onOpenAdmin: () => void;
-}
-
-export const Footer: React.FC<FooterProps> = ({ onOpenAdmin }) => {
+export const Footer: React.FC = () => {
   return (
     <footer className="footer-luxury">
       <div className="footer-inner">
@@ -17,23 +14,19 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAdmin }) => {
         </div>
 
         <div className="footer-links">
-          <a href="#home">Home</a>
-          <a href="#about">About</a>
-          <a href="#services">Services</a>
-          <a href="#booking">Book Appointment</a>
-          <a href="#contact">Contact</a>
+          <Link to="/">Home</Link>
+          <Link to="/#about">About</Link>
+          <Link to="/services">Services</Link>
+          <Link to="/booking">Book Appointment</Link>
+          <Link to="/contact">Contact</Link>
         </div>
 
         <div className="footer-bottom">
           <p>© 2026 THE VIII SALON. All rights reserved.</p>
           <div className="footer-admin-link">
-            <button
-              type="button"
-              className="admin-link-btn"
-              onClick={onOpenAdmin}
-            >
+            <Link to="/admin" className="admin-link-btn">
               <Lock size={12} /> Salon Owner Portal
-            </button>
+            </Link>
           </div>
           <p className="footer-loc">BTM Layout 2nd Stage, Bengaluru</p>
         </div>

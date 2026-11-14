@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { pool } from "../config/database.js";
+import { database } from "../config/database.js";
 import { ServiceRow } from "../model/serviceModel.js";
 import { ResultSetHeader } from "mysql2";
 
@@ -18,7 +18,7 @@ export const getAllServices = async (req: Request, res: Response): Promise<void>
 
   query += " ORDER BY s.id DESC";
 
-  const [services] = await pool.query<ServiceRow[]>(query, params);
+  const [services] = await database.query<ServiceRow[]>(query, params);
   res.json({ success: true, data: services });
 };
 
@@ -30,7 +30,7 @@ export const createService = async (req: Request, res: Response): Promise<void> 
     return;
   }
 
-  const [result] = await pool.query<ResultSetHeader>(
+  const [result] = await database.query<ResultSetHeader>(
     `INSERT INTO services (category_id, sub_category, name, price, duration, description, image, featured)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
     [category_id, sub_category || "General", name, price, duration || 45, description || "", image || "", Boolean(featured)]
@@ -43,7 +43,7 @@ export const updateService = async (req: Request, res: Response): Promise<void> 
   const { category_id, sub_category, name, price, duration, description, image, featured, is_active } = req.body;
   const { id } = req.params;
 
-  await pool.query(
+  await database.query(
     `UPDATE services SET 
       category_id = COALESCE(?, category_id),
       sub_category = COALESCE(?, sub_category),
@@ -63,6 +63,6 @@ export const updateService = async (req: Request, res: Response): Promise<void> 
 
 export const deleteService = async (req: Request, res: Response): Promise<void> => {
   // Soft delete so previous booking history remains intact
-  await pool.query("UPDATE services SET is_active = FALSE WHERE id = ?", [req.params.id]);
+  await database.query("UPDATE services SET is_active = FALSE WHERE id = ?", [req.params.id]);
   res.json({ success: true, message: "Service deactivated successfully" });
 };

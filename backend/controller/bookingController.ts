@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { pool } from "../config/database.js";
+import { database } from "../config/database.js";
 import { AuthRequest } from "../middleware/authMiddleware.js";
 import { BookingRow } from "../model/bookingModel.js";
 import { ServiceRow } from "../model/serviceModel.js";
@@ -11,7 +11,7 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
   try {
     const { name, phone, email, serviceId, date, time, notes } = req.body;
 
-    const [serviceRows] = await pool.query<ServiceRow[]>(
+    const [serviceRows] = await database.query<ServiceRow[]>(
       "SELECT * FROM services WHERE id = ? AND is_active = TRUE",
       [serviceId]
     );
@@ -23,7 +23,7 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
     const service = serviceRows[0];
 
     // Check slot availability
-    const [conflict] = await pool.query<BookingRow[]>(
+    const [conflict] = await database.query<BookingRow[]>(
       "SELECT id FROM bookings WHERE booking_date = ? AND booking_time = ? AND status IN ('PENDING', 'CONFIRMED')",
       [date, time]
     );
@@ -36,7 +36,7 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
     const reference = generateBookingReference();
     const userId = req.user ? req.user.id : null;
 
-    const [result] = await pool.query<ResultSetHeader>(
+    const [result] = await database.query<ResultSetHeader>(
       `INSERT INTO bookings 
         (reference, user_id, name, phone, email, service_id, booking_date, booking_time, notes, bill_amount) 
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -59,7 +59,7 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
 
 // Client view of their own bookings
 export const getUserBookings = async (req: AuthRequest, res: Response): Promise<void> => {
-  const [rows] = await pool.query<BookingRow[]>(
+  const [rows] = await database.query<BookingRow[]>(
     `SELECT b.*, s.name as service_name, s.duration 
      FROM bookings b 
      JOIN services s ON b.service_id = s.id 
@@ -72,7 +72,7 @@ export const getUserBookings = async (req: AuthRequest, res: Response): Promise<
 
 // Admin view of all bookings
 export const getAdminBookings = async (_req: Request, res: Response): Promise<void> => {
-  const [rows] = await pool.query<BookingRow[]>(
+  const [rows] = await database.query<BookingRow[]>(
     `SELECT b.*, s.name as service_name 
      FROM bookings b 
      JOIN services s ON b.service_id = s.id 
@@ -83,6 +83,6 @@ export const getAdminBookings = async (_req: Request, res: Response): Promise<vo
 
 export const updateBookingStatus = async (req: Request, res: Response): Promise<void> => {
   const { status } = req.body;
-  await pool.query("UPDATE bookings SET status = ? WHERE id = ?", [status, req.params.id]);
+  await database.query("UPDATE bookings SET status = ? WHERE id = ?", [status, req.params.id]);
   res.json({ success: true, message: "Status updated" });
 };

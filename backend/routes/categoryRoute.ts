@@ -1,24 +1,19 @@
 import { Router } from "express";
 
 import {
-    fetchCategories,
-    fetchActiveCategories,
-    addCategory,
-    editCategory,
-    changeCategoryStatus
+    getCategories,
+    createCategory,
 } from "../controller/categoryController.js";
 
-import { verifyAdmin } from "../middleware/authMiddleware.js";
+import { authenticate } from "../middleware/authMiddleware.js";
 
 const router = Router();
 
 // Public
-router.get("/active", fetchActiveCategories);
+router.get("/", getCategories);
 
 // Admin
-router.get("/", verifyAdmin, fetchCategories);
-router.post("/", verifyAdmin, addCategory);
-router.put("/:id", verifyAdmin, editCategory);
-router.patch("/:id/status", verifyAdmin, changeCategoryStatus);
+router.get("/", authenticate, getCategories);
+router.post("/", authenticate, createCategory);
 
 export default router;

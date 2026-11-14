@@ -212,3 +212,22 @@ export const allServicesFlat = servicesCatalog.flatMap((cat) =>
     }))
   )
 );
+
+export interface CatalogServiceOption {
+  id: number;
+  name: string;
+  category: string;
+  price: number;
+}
+
+let catalogServiceId = 0;
+export const catalogServiceOptions: CatalogServiceOption[] = servicesCatalog.flatMap((category) =>
+  category.subCategories.flatMap((subCategory) =>
+    subCategory.items.map((item) => ({
+      id: ++catalogServiceId,
+      name: item.name,
+      category: category.label,
+      price: Number(item.price.replace(/[^\d]/g, "")),
+    }))
+  )
+);

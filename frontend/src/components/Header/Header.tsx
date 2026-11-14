@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Menu, X, Sparkles, ArrowUpRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import "./Header.css";
 
 export const Header: React.FC = () => {
@@ -18,41 +19,41 @@ export const Header: React.FC = () => {
     <header className={`navbar-wrapper ${scrolled ? "scrolled" : ""}`}>
       <nav className="navbar-container">
         {/* Brand Logo */}
-        <a href="#home" className="logo-brand">
+        <Link to="/" className="logo-brand" onClick={() => setMenuOpen(false)}>
           <span className="logo-mark">VIII</span>
           <div className="logo-divider"></div>
           <div className="logo-details">
             <span className="logo-name">THE VIII</span>
             <span className="logo-tagline">UNISEX SALON • BENGALURU</span>
           </div>
-        </a>
+        </Link>
 
         {/* Desktop Nav Links */}
         <div className={`nav-center-menu ${menuOpen ? "mobile-active" : ""}`}>
-          <a href="#home" onClick={() => setMenuOpen(false)}>Home</a>
-          <a href="#about" onClick={() => setMenuOpen(false)}>About</a>
-          <a href="#services" onClick={() => setMenuOpen(false)}>Services</a>
-          <a href="#booking" onClick={() => setMenuOpen(false)}>Booking</a>
-          <a href="#contact" onClick={() => setMenuOpen(false)}>Contact</a>
+          <Link to="/" onClick={() => setMenuOpen(false)}>Home</Link>
+          <Link to="/#about" onClick={() => setMenuOpen(false)}>About</Link>
+          <Link to="/services" onClick={() => setMenuOpen(false)}>Services</Link>
+          <Link to="/booking" onClick={() => setMenuOpen(false)}>Booking</Link>
+          <Link to="/contact" onClick={() => setMenuOpen(false)}>Contact</Link>
 
           {/* Mobile-only CTA in drawer */}
           <div className="mobile-cta-box">
-            <a
-              href="#booking"
+            <Link
+              to="/booking"
               className="nav-cta-btn"
               onClick={() => setMenuOpen(false)}
             >
               <Sparkles size={14} /> Book Appointment
-            </a>
+            </Link>
           </div>
         </div>
 
         {/* Right CTA */}
         <div className="nav-actions">
-          <a href="#booking" className="nav-cta-btn">
+          <Link to="/booking" className="nav-cta-btn">
             <span>Book Appointment</span>
             <ArrowUpRight size={15} className="cta-icon" />
-          </a>
+          </Link>
 
           {/* Mobile Hamburger Button */}
           <button

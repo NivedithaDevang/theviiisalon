@@ -1,24 +1,23 @@
 import { Router } from "express";
 
 import {
-    fetchServices,
-    fetchPublicServices,
-    addService,
-    editService,
-    removeService
+    getAllServices,
+    createService,
+    updateService,
+    deleteService
 } from "../controller/serviceController.js";
 
-import { verifyAdmin } from "../middleware/authMiddleware.js";
+import { authenticate } from "../middleware/authMiddleware.js";
 
 const router = Router();
 
 // Customer routes
-router.get("/public", fetchPublicServices);
+router.get("/", getAllServices);
 
 // Admin routes
-router.get("/", verifyAdmin, fetchServices);
-router.post("/", verifyAdmin, addService);
-router.put("/:id", verifyAdmin, editService);
-router.delete("/:id", verifyAdmin, removeService);
+router.get("/", authenticate, getAllServices);
+router.post("/", authenticate, createService);
+router.put("/:id", authenticate, updateService);
+router.delete("/:id", authenticate, deleteService);
 
 export default router;

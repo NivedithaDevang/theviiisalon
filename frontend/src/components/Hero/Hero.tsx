@@ -1,5 +1,6 @@
 import React from "react";
 import { ArrowRight, Sparkles } from "lucide-react";
+import { Link } from "react-router-dom";
 import "./Hero.css";
 
 export const Hero: React.FC = () => {
@@ -27,12 +28,12 @@ export const Hero: React.FC = () => {
         </p>
 
         <div className="hero-actions">
-          <a href="#booking" className="btn-luxury-primary">
+          <Link to="/booking" className="btn-luxury-primary">
             Reserve an Appointment <ArrowRight size={16} />
-          </a>
-          <a href="#services" className="btn-luxury-ghost">
+          </Link>
+          <Link to="/services" className="btn-luxury-ghost">
             View Rituals
-          </a>
+          </Link>
         </div>
 
         <div className="hero-experience-note">
@@ -45,7 +46,7 @@ export const Hero: React.FC = () => {
       <div className="hero-visual-wrapper">
         <div className="gold-diffuse-glow"></div>
         <img
-          src="/salon-interior.jpg"
+          src="../../../public/salon-interior.jpg"
           alt="THE VIII Luxury Salon Sanctuary"
           className="salon-interior-fade-img"
         />
