@@ -1,85 +1,80 @@
-import { Request, Response, NextFunction } from "express";
+import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import { database } from "../config/database.js";
-import { UserRow } from "../model/authModel.js";
-
-export interface AuthenticatedUser {
-  id: number;
-  name: string;
-  email: string;
-  role: "client" | "admin";
-}
+import { AdminRole } from "../controller/authController.js";
+import { authModel } from "../model/authModel.js";
 
 export interface AuthRequest extends Request {
-  user?: AuthenticatedUser;
+  admin?: {
+    id: number;
+    email: string;
+    role: AdminRole;
+  };
 }
 
-interface JwtPayload {
+interface AdminJwtPayload {
   id: number;
-  role: "client" | "admin";
   email: string;
+  role: AdminRole;
 }
 
-export const authenticate = async (
+export const requireAdminAuth = async (
   req: AuthRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
   try {
-    // 1. Extract token from HttpOnly cookie or Authorization Bearer header
-    const token =
-      req.cookies?.token ||
-      (req.headers.authorization?.startsWith("Bearer ")
-        ? req.headers.authorization.split(" ")[1]
-        : null);
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      res.status(401).json({ success: false, message: "Authentication token required." });
+      return;
+    }
 
+    const token = authHeader.split(" ")[1]?.trim();
     if (!token) {
-      res.status(401).json({
-        success: false,
-        message: "Authentication required. Please sign in to access your sanctuary.",
-      });
+      res.status(401).json({ success: false, message: "Authentication token missing." });
       return;
     }
 
-    // 2. Verify JWT signature
-    const secret = process.env.JWT_SECRET || "viii_luxury_secret_2026";
-    const decoded = jwt.verify(token, secret) as JwtPayload;
-
-    // 3. Ensure user exists in MySQL
-    const [rows] = await database.query<UserRow[]>(
-      "SELECT id, name, email, role FROM users WHERE id = ?",
-      [decoded.id]
-    );
-
-    if (rows.length === 0) {
-      res.status(401).json({
-        success: false,
-        message: "User session is invalid or user no longer exists.",
-      });
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      console.error("JWT_SECRET is missing in environment variables.");
+      res.status(500).json({ success: false, message: "Server authentication configuration error." });
       return;
     }
 
-    // 4. Attach typed user to request
-    req.user = {
-      id: rows[0].id,
-      name: rows[0].name,
-      email: rows[0].email,
-      role: rows[0].role,
+    const decoded = jwt.verify(token, secret) as AdminJwtPayload;
+
+    if (!decoded?.id || decoded.role !== "ADMIN") {
+      res.status(403).json({ success: false, message: "Access denied. Admin privileges required." });
+      return;
+    }
+
+    // Confirm the admin still exists and is active in MySQL
+    const admin = await authModel.findById(decoded.id);
+    if (!admin || !admin.is_active) {
+      res.status(401).json({ success: false, message: "Admin account is inactive or no longer exists." });
+      return;
+    }
+
+    req.admin = {
+      id: admin.id,
+      email: admin.email,
+      role: "ADMIN",
     };
 
     next();
-  } catch (error: any) {
-    if (error.name === "TokenExpiredError") {
-      res.status(401).json({
-        success: false,
-        message: "Your session has expired. Please sign in again.",
-      });
+  } catch (error) {
+    if (error instanceof jwt.TokenExpiredError) {
+      res.status(401).json({ success: false, message: "Session expired. Please log in again." });
       return;
     }
-
-    res.status(401).json({
-      success: false,
-      message: "Invalid authentication credentials.",
-    });
+    if (error instanceof jwt.JsonWebTokenError) {
+      res.status(401).json({ success: false, message: "Invalid authentication token." });
+      return;
+    }
+    console.error("Admin auth middleware error:", error);
+    res.status(500).json({ success: false, message: "Internal server error." });
   }
 };
+
+export default requireAdminAuth;

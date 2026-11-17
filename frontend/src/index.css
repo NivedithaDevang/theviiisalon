@@ -38,6 +38,52 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+body select.salon-select {
+  appearance: none;
+  -webkit-appearance: none;
+  min-height: 2.75rem;
+  padding: 0.65rem 2.6rem 0.65rem 0.9rem;
+  border: 1px solid rgba(226, 184, 108, 0.34);
+  border-radius: 12px;
+  background-color: #1b0d11;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23e2b86c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.85rem center;
+  color: #fbf5ed;
+  font: inherit;
+  font-size: 0.88rem;
+  line-height: 1.4;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+body select.salon-select:hover:not(:disabled) {
+  border-color: rgba(226, 184, 108, 0.7);
+  background-color: #251016;
+}
+
+body select.salon-select:focus-visible {
+  outline: none;
+  border-color: #e2b86c;
+  box-shadow: 0 0 0 3px rgba(226, 184, 108, 0.16);
+}
+
+body select.salon-select:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+body select.salon-select option,
+body select.salon-select optgroup {
+  background-color: #1b0d11;
+  color: #fbf5ed;
+}
+
+body select.salon-select option:checked {
+  background: #59351d;
+  color: #f3d68f;
+}
+
 /* Global Gold Shimmer */
 .gold-shimmer {
   background: linear-gradient(120deg, #d4af37 0%, #fbe6a2 35%, #b8862d 70%, #ffd700 100%);

@@ -1,8 +1,8 @@
-import {database} from "../config/database.js";
+import {db} from "../config/database.js";
 import { RowDataPacket } from "mysql2";
 
 export const getDashboardStats = async () => {
-    const [rows] = await database.execute<RowDataPacket[]>(`
+    const [rows] = await db.execute<RowDataPacket[]>(`
         SELECT
             COUNT(*) AS total_bookings,
 
@@ -25,11 +25,11 @@ export const getDashboardStats = async () => {
         FROM bookings
     `);
 
-    const [customers] = await database.execute<RowDataPacket[]>(
+    const [customers] = await db.execute<RowDataPacket[]>(
         `SELECT COUNT(*) AS total_customers FROM customers`
     );
 
-    const [services] = await database.execute<RowDataPacket[]>(
+    const [services] = await db.execute<RowDataPacket[]>(
         `SELECT COUNT(*) AS active_services
          FROM services WHERE is_active = TRUE`
     );

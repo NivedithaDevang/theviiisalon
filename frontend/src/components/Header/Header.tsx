@@ -31,7 +31,6 @@ export const Header: React.FC = () => {
         {/* Desktop Nav Links */}
         <div className={`nav-center-menu ${menuOpen ? "mobile-active" : ""}`}>
           <Link to="/" onClick={() => setMenuOpen(false)}>Home</Link>
-          <Link to="/#about" onClick={() => setMenuOpen(false)}>About</Link>
           <Link to="/services" onClick={() => setMenuOpen(false)}>Services</Link>
           <Link to="/booking" onClick={() => setMenuOpen(false)}>Booking</Link>
           <Link to="/contact" onClick={() => setMenuOpen(false)}>Contact</Link>

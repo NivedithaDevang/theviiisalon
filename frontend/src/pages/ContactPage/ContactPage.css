@@ -1,0 +1,39 @@
+.contact-page {
+  background-color: #16070b;
+  min-height: 100vh;
+}
+
+.contact-map-section {
+  max-width: 1200px; /* Matches the Contact cards grid width */
+  margin: 0 auto 5rem;
+  padding: 0 1.5rem;
+}
+
+.contact-map {
+  width: 100%;
+  height: 380px;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(226, 184, 108, 0.25);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
+}
+
+.contact-map iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  /* Optional: subtle dark-gold editorial tint so the white map blends into the dark theme */
+  filter: invert(90%) hue-rotate(180deg) contrast(92%) saturate(85%);
+}
+
+@media (max-width: 640px) {
+  .contact-map-section {
+    padding: 0 1.25rem;
+    margin-bottom: 3.5rem;
+  }
+
+  .contact-map {
+    height: 280px;
+  }
+}

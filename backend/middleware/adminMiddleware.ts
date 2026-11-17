@@ -1,52 +1,70 @@
-import { Response, NextFunction } from "express";
-import { AuthRequest } from "../middleware/authMiddleware.js";
-import { database } from "../config/database.js";
-import { UserRow } from "../model/authModel.js";
+import { NextFunction, Response } from "express";
+import jwt from "jsonwebtoken";
+import { AuthenticatedRequest, AdminRole } from "../controller/authController.js";
+import { authModel } from "../model/authModel.js";
 
-export const requireAdmin = async (
-  req: AuthRequest,
+interface AdminJwtPayload {
+  id: number;
+  email: string;
+  role: AdminRole;
+}
+
+export const requireAdminAuth = async (
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
   try {
-    // 1. Check if authenticated user object exists on request
-    if (!req.user) {
-      res.status(401).json({
-        success: false,
-        message: "Authentication required. Please log in first.",
-      });
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      res.status(401).json({ success: false, message: "Authentication token required." });
       return;
     }
 
-    // 2. Validate role stored in the verified JWT
-    if (req.user.role !== "admin") {
-      res.status(403).json({
-        success: false,
-        message: "Access denied: Restricted to salon administrators.",
-      });
+    const token = authHeader.split(" ")[1]?.trim();
+    if (!token) {
+      res.status(401).json({ success: false, message: "Authentication token missing." });
       return;
     }
 
-    // 3. Database check to verify role status in MySQL
-    const [rows] = await database.query<UserRow[]>(
-      "SELECT id, role FROM users WHERE id = ? AND role = 'admin' LIMIT 1",
-      [req.user.id]
-    );
-
-    if (rows.length === 0) {
-      res.status(403).json({
-        success: false,
-        message: "Unauthorized: Administrative privileges not found.",
-      });
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      console.error("JWT_SECRET is missing in environment variables.");
+      res.status(500).json({ success: false, message: "Server authentication configuration error." });
       return;
     }
+
+    const decoded = jwt.verify(token, secret) as AdminJwtPayload;
+
+    if (!decoded?.id || decoded.role !== "ADMIN") {
+      res.status(403).json({ success: false, message: "Access denied. Admin privileges required." });
+      return;
+    }
+
+    // Verify admin still exists and is active in MySQL
+    const admin = await authModel.findById(decoded.id);
+    if (!admin || !admin.is_active) {
+      res.status(401).json({ success: false, message: "Admin account is inactive or no longer exists." });
+      return;
+    }
+
+    req.admin = {
+      id: admin.id,
+      email: admin.email,
+      role: "ADMIN",
+    };
 
     next();
   } catch (error) {
-    console.error("Admin authorization error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Authorization verification failure.",
-    });
+    if (error instanceof jwt.TokenExpiredError) {
+      res.status(401).json({ success: false, message: "Session expired. Please log in again." });
+      return;
+    }
+    if (error instanceof jwt.JsonWebTokenError) {
+      res.status(401).json({ success: false, message: "Invalid authentication token." });
+      return;
+    }
+    console.error("Admin auth middleware error:", error);
+    res.status(500).json({ success: false, message: "Internal server error." });
   }
 };

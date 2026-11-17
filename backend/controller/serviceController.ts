@@ -1,68 +1,156 @@
 import { Request, Response } from "express";
-import { database } from "../config/database.js";
-import { ServiceRow } from "../model/serviceModel.js";
-import { ResultSetHeader } from "mysql2";
+import { serviceModel } from "../model/serviceModel.js";
 
-export const getAllServices = async (req: Request, res: Response): Promise<void> => {
-  let query = `
-    SELECT s.*, c.name AS category_name, c.slug AS category_slug 
-    FROM services s 
-    JOIN categories c ON s.category_id = c.id 
-    WHERE s.is_active = TRUE
-  `;
-  const params: any[] = [];
+export const serviceController = {
+  // GET /api/services (Public — used by BookingPage & ServicesPage)
+  async getPublicServices(_req: Request, res: Response): Promise<void> {
+    try {
+      const services = await serviceModel.findAllActive();
+      res.status(200).json({ success: true, data: services });
+    } catch (error) {
+      console.error("Get public services error:", error);
+      res.status(500).json({ success: false, message: "Failed to load salon services." });
+    }
+  },
 
-  if (req.query.featured === "true") {
-    query += " AND s.featured = TRUE";
-  }
+  // GET /api/services/categories (Public)
+  async getCategories(_req: Request, res: Response): Promise<void> {
+    try {
+      const categories = await serviceModel.findAllCategories();
+      res.status(200).json({ success: true, data: categories });
+    } catch (error) {
+      console.error("Get categories error:", error);
+      res.status(500).json({ success: false, message: "Failed to load service categories." });
+    }
+  },
 
-  query += " ORDER BY s.id DESC";
+  // GET /api/services/admin (Protected — Admin Dashboard)
+  async getAdminServices(_req: Request, res: Response): Promise<void> {
+    try {
+      const services = await serviceModel.findAllAdmin();
+      res.status(200).json({ success: true, data: services });
+    } catch (error) {
+      console.error("Get admin services error:", error);
+      res.status(500).json({ success: false, message: "Failed to load services." });
+    }
+  },
 
-  const [services] = await database.query<ServiceRow[]>(query, params);
-  res.json({ success: true, data: services });
-};
+  // GET /api/services/:id (Public)
+  async getServiceById(req: Request, res: Response): Promise<void> {
+    try {
+      const id = Number(req.params.id);
+      if (Number.isNaN(id)) {
+        res.status(400).json({ success: false, message: "Invalid service ID." });
+        return;
+      }
 
-export const createService = async (req: Request, res: Response): Promise<void> => {
-  const { category_id, sub_category, name, price, duration, description, image, featured } = req.body;
-  
-  if (!category_id || !name || !price) {
-    res.status(400).json({ success: false, message: "Category, name and price are required." });
-    return;
-  }
+      const service = await serviceModel.findById(id);
+      if (!service) {
+        res.status(404).json({ success: false, message: "Service not found." });
+        return;
+      }
 
-  const [result] = await database.query<ResultSetHeader>(
-    `INSERT INTO services (category_id, sub_category, name, price, duration, description, image, featured)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-    [category_id, sub_category || "General", name, price, duration || 45, description || "", image || "", Boolean(featured)]
-  );
+      res.status(200).json({ success: true, data: service });
+    } catch (error) {
+      console.error("Get service by ID error:", error);
+      res.status(500).json({ success: false, message: "Failed to load service details." });
+    }
+  },
 
-  res.status(201).json({ success: true, data: { id: result.insertId, ...req.body } });
-};
+  // POST /api/services (Protected — Admin Create)
+  async createService(req: Request, res: Response): Promise<void> {
+    try {
+      const { categoryId, category_id, name, description, price, duration, image, featured, isActive } = req.body;
+      const resolvedCategoryId = Number(categoryId ?? category_id);
 
-export const updateService = async (req: Request, res: Response): Promise<void> => {
-  const { category_id, sub_category, name, price, duration, description, image, featured, is_active } = req.body;
-  const { id } = req.params;
+      if (!resolvedCategoryId || !name || price === undefined) {
+        res.status(400).json({ success: false, message: "Category, service name, and price are required." });
+        return;
+      }
 
-  await database.query(
-    `UPDATE services SET 
-      category_id = COALESCE(?, category_id),
-      sub_category = COALESCE(?, sub_category),
-      name = COALESCE(?, name),
-      price = COALESCE(?, price),
-      duration = COALESCE(?, duration),
-      description = COALESCE(?, description),
-      image = COALESCE(?, image),
-      featured = COALESCE(?, featured),
-      is_active = COALESCE(?, is_active)
-     WHERE id = ?`,
-    [category_id, sub_category, name, price, duration, description, image, featured, is_active, id]
-  );
+      const newId = await serviceModel.create({
+        categoryId: resolvedCategoryId,
+        name,
+        description,
+        price: Number(price),
+        duration: Number(duration) || 45,
+        image,
+        featured: Boolean(featured),
+        isActive: isActive !== undefined ? Boolean(isActive) : true,
+      });
 
-  res.json({ success: true, message: "Service updated successfully" });
-};
+      const createdService = await serviceModel.findById(newId);
+      res.status(201).json({
+        success: true,
+        message: "Service created successfully.",
+        data: createdService,
+      });
+    } catch (error) {
+      console.error("Create service error:", error);
+      res.status(500).json({ success: false, message: "Failed to create service." });
+    }
+  },
 
-export const deleteService = async (req: Request, res: Response): Promise<void> => {
-  // Soft delete so previous booking history remains intact
-  await database.query("UPDATE services SET is_active = FALSE WHERE id = ?", [req.params.id]);
-  res.json({ success: true, message: "Service deactivated successfully" });
+  // PUT / PATCH /api/services/:id (Protected — Admin Update)
+  async updateService(req: Request, res: Response): Promise<void> {
+    try {
+      const id = Number(req.params.id);
+      if (Number.isNaN(id)) {
+        res.status(400).json({ success: false, message: "Invalid service ID." });
+        return;
+      }
+
+      const { categoryId, category_id, name, description, price, duration, image, featured, isActive, is_active } =
+        req.body;
+
+      const updated = await serviceModel.update(id, {
+        categoryId: categoryId !== undefined || category_id !== undefined ? Number(categoryId ?? category_id) : undefined,
+        name,
+        description,
+        price: price !== undefined ? Number(price) : undefined,
+        duration: duration !== undefined ? Number(duration) : undefined,
+        image,
+        featured: featured !== undefined ? Boolean(featured) : undefined,
+        isActive:
+          isActive !== undefined || is_active !== undefined ? Boolean(isActive ?? is_active) : undefined,
+      });
+
+      if (!updated) {
+        res.status(404).json({ success: false, message: "Service not found or no changes provided." });
+        return;
+      }
+
+      const service = await serviceModel.findById(id);
+      res.status(200).json({
+        success: true,
+        message: "Service updated successfully.",
+        data: service,
+      });
+    } catch (error) {
+      console.error("Update service error:", error);
+      res.status(500).json({ success: false, message: "Failed to update service." });
+    }
+  },
+
+  // DELETE /api/services/:id (Protected — Admin Soft Delete)
+  async deleteService(req: Request, res: Response): Promise<void> {
+    try {
+      const id = Number(req.params.id);
+      if (Number.isNaN(id)) {
+        res.status(400).json({ success: false, message: "Invalid service ID." });
+        return;
+      }
+
+      const deleted = await serviceModel.delete(id);
+      if (!deleted) {
+        res.status(404).json({ success: false, message: "Service not found." });
+        return;
+      }
+
+      res.status(200).json({ success: true, message: "Service deactivated successfully." });
+    } catch (error) {
+      console.error("Delete service error:", error);
+      res.status(500).json({ success: false, message: "Failed to delete service." });
+    }
+  },
 };

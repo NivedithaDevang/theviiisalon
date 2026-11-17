@@ -8,8 +8,7 @@ export const Footer: React.FC = () => {
     <footer className="footer-luxury">
       <div className="footer-inner">
         <div className="footer-brand">
-          <span className="footer-viii">VIII</span>
-          <h3>THE VIII SALON</h3>
+          <span className="footer-viii"> THE VIII SALON</span>
           <p className="tagline">Beauty is endless. So are you.</p>
         </div>
 

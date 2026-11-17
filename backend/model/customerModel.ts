@@ -1,8 +1,8 @@
-import {database}from "../config/database.js";
+import {db}from "../config/database.js";
 import { RowDataPacket } from "mysql2";
 
 export const getAllCustomers = async () => {
-    const [rows] = await database.execute<RowDataPacket[]>(
+    const [rows] = await db.execute<RowDataPacket[]>(
         `SELECT
             c.id,
             c.full_name,
@@ -23,7 +23,7 @@ export const getAllCustomers = async () => {
 };
 
 export const getCustomerById = async (id: number) => {
-    const [rows] = await database.execute<RowDataPacket[]>(
+    const [rows] = await db.execute<RowDataPacket[]>(
         `SELECT id, full_name, phone, whatsapp_number,
                 email, gender, notes, whatsapp_opt_in, created_at
          FROM customers
@@ -35,7 +35,7 @@ export const getCustomerById = async (id: number) => {
 };
 
 export const getCustomerBookings = async (id: number) => {
-    const [rows] = await database.execute<RowDataPacket[]>(
+    const [rows] = await db.execute<RowDataPacket[]>(
         `SELECT
             b.id,
             b.booking_reference,
@@ -54,7 +54,7 @@ export const getCustomerBookings = async (id: number) => {
 };
 
 export const searchCustomers = async (search: string) => {
-    const [rows] = await database.execute<RowDataPacket[]>(
+    const [rows] = await db.execute<RowDataPacket[]>(
         `SELECT id, full_name, phone, email
          FROM customers
          WHERE full_name LIKE ?

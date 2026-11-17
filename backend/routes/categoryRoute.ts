@@ -5,7 +5,7 @@ import {
     createCategory,
 } from "../controller/categoryController.js";
 
-import { authenticate } from "../middleware/authMiddleware.js";
+import { requireAdminAuth } from "../middleware/authMiddleware.js";
 
 const router = Router();
 
@@ -13,7 +13,7 @@ const router = Router();
 router.get("/", getCategories);
 
 // Admin
-router.get("/", authenticate, getCategories);
-router.post("/", authenticate, createCategory);
+router.get("/", requireAdminAuth, getCategories);
+router.post("/", requireAdminAuth, createCategory);
 
 export default router;

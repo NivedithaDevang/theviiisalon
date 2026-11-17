@@ -6,12 +6,12 @@ import {
     searchCustomerRecords
 } from "../controller/customerController.js";
 
-import { authenticate } from "../middleware/authMiddleware.js";
+import { requireAdminAuth } from "../middleware/authMiddleware.js";
 
 const router = Router();
 
-router.get("/", authenticate, fetchCustomers);
-router.get("/search", authenticate, searchCustomerRecords);
-router.get("/:id", authenticate, fetchCustomerDetails);
+router.get("/", requireAdminAuth, fetchCustomers);
+router.get("/search", requireAdminAuth, searchCustomerRecords);
+router.get("/:id", requireAdminAuth, fetchCustomerDetails);
 
 export default router;

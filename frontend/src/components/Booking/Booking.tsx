@@ -64,6 +64,7 @@ Kindly confirm the appointment slot at BTM 2nd Stage.`;
 
           <div className="form-row">
             <select
+              className="salon-select"
               name="service"
               value={selectedService}
               onChange={(e) => setSelectedService(e.target.value)}
