@@ -5,14 +5,6 @@ import { authModel } from "../model/authModel.js";
 
 export type AdminRole = "ADMIN";
 
-export interface AuthenticatedRequest extends Request {
-  admin?: {
-    id: number;
-    email: string;
-    role: AdminRole;
-  };
-}
-
 function signAdminToken(payload: {
   id: number;
   email: string;
@@ -20,100 +12,103 @@ function signAdminToken(payload: {
 }): string {
   const secret = process.env.JWT_SECRET;
   if (!secret) {
-    throw new Error("JWT_SECRET is not configured in environment variables.");
+    throw new Error("Please try again after some time");
   }
-  return jwt.sign(payload, secret, {
+  return jwt.sign({ ...payload, tokenType: "admin-session" }, secret, {
     expiresIn: (process.env.JWT_EXPIRES_IN as jwt.SignOptions["expiresIn"]) || "7d",
   });
 }
 
+function signLoginChallenge(admin: { id: number; email: string }): string {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error("Please try again after sometime");
+  }
+  return jwt.sign(
+    { id: admin.id, email: admin.email, purpose: "admin-secret-verification" },
+    secret,
+    { expiresIn: "5m" }
+  );
+}
+
 export const authController = {
-  // POST /api/auth/register
-  async register(req: Request, res: Response): Promise<void> {
-    try {
-      const { email, password, secretKey } = req.body as {
-        email?: string;
-        password?: string;
-        secretKey?: string;
-      };
-
-      if (!email || !password || !secretKey) {
-        res.status(400).json({ message: "Email, password, and admin secret key are required." });
-        return;
-      }
-
-      if (!authModel.verifySecretKey(secretKey)) {
-        res.status(403).json({ message: "Invalid admin secret key." });
-        return;
-      }
-
-      if (password.length < 8) {
-        res.status(400).json({ message: "Password must be at least 8 characters long." });
-        return;
-      }
-
-      const existingAdmin = await authModel.findByEmail(email);
-      if (existingAdmin) {
-        res.status(409).json({ message: "An admin account with this email already exists." });
-        return;
-      }
-
-      const assignedRole: AdminRole = "ADMIN";
-      const normalizedEmail = email.trim().toLowerCase();
-      const passwordHash = await bcrypt.hash(password, 12);
-      const adminId = await authModel.createAdmin(normalizedEmail, passwordHash);
-
-      const token = signAdminToken({
-        id: adminId,
-        email: normalizedEmail,
-        role: assignedRole,
-      });
-
-      res.status(201).json({
-        message: "Admin account created successfully.",
-        data: {
-          token,
-          admin: {
-            id: adminId,
-            email: normalizedEmail,
-            role: assignedRole,
-          },
-        },
-      });
-    } catch (error) {
-      console.error("Admin register error:", error);
-      res.status(500).json({ message: "Internal server error." });
-    }
-  },
-
   // POST /api/auth/login
   async login(req: Request, res: Response): Promise<void> {
     try {
-      const { email, password, secretKey } = req.body as {
+      const { email, password } = req.body as {
         email?: string;
         password?: string;
-        secretKey?: string;
       };
 
-      if (!email || !password || !secretKey) {
-        res.status(400).json({ message: "Email, password, and admin secret key are required." });
-        return;
-      }
-
-      if (!authModel.verifySecretKey(secretKey)) {
-        res.status(403).json({ message: "Invalid admin secret key." });
+      if (!email || !password) {
+        res.status(400).json({ message: "Email and password are required." });
         return;
       }
 
       const admin = await authModel.findByEmail(email);
       if (!admin || !admin.is_active) {
-        res.status(401).json({ message: "Invalid email or password." });
+        res.status(401).json({ message: "Entered email is incorrect. Please try again" });
         return;
       }
 
       const isPasswordValid = await bcrypt.compare(password, admin.password_hash);
       if (!isPasswordValid) {
-        res.status(401).json({ message: "Invalid email or password." });
+        res.status(401).json({ message: "Entered password is incorrect. Please try again" });
+        return;
+      }
+
+      res.status(200).json({
+        message: "Email and password verified. Please enter secret key",
+        data: {
+          challengeToken: signLoginChallenge(admin),
+        },
+      });
+    } catch (error) {
+      console.error("Admin login error:", error);
+      res.status(500).json({ message: "Internal server error. Please try again later" });
+    }
+  },
+
+  // POST /api/auth/verify-secret-key
+  async verifySecretKey(req: Request, res: Response): Promise<void> {
+    try {
+      const { challengeToken, secretKey } = req.body as {
+        challengeToken?: string;
+        secretKey?: string;
+      };
+
+      if (!challengeToken || !secretKey) {
+        res.status(400).json({ message: "Secret key is required." });
+        return;
+      }
+
+      const secret = process.env.JWT_SECRET;
+      if (!secret) {
+        throw new Error("Please try again after sometime");
+      }
+
+      const challenge = jwt.verify(challengeToken, secret) as {
+        id: number;
+        email: string;
+        purpose: string;
+      };
+      if (
+        challenge.purpose !== "admin-secret-verification" ||
+        !challenge.id ||
+        !challenge.email
+      ) {
+        res.status(401).json({ message: "Entered credentials is incorrect. Please sign in again." });
+        return;
+      }
+
+      if (!authModel.verifySecretKey(secretKey)) {
+        res.status(403).json({ message: "Entered admin secret key is incorrect." });
+        return;
+      }
+
+      const admin = await authModel.findById(challenge.id);
+      if (!admin || !admin.is_active || admin.email !== challenge.email) {
+        res.status(401).json({ message: "Admin account is inactive or no longer exists." });
         return;
       }
 
@@ -135,85 +130,13 @@ export const authController = {
         },
       });
     } catch (error) {
-      console.error("Admin login error:", error);
-      res.status(500).json({ message: "Internal server error." });
+      if (error instanceof jwt.TokenExpiredError || error instanceof jwt.JsonWebTokenError) {
+        res.status(401).json({ message: "Sessio expired. Please sign in again." });
+        return;
+      }
+      console.error("Admin secret-key verification error:", error);
+      res.status(500).json({ message: "Internal server error. Please try again later" });
     }
   },
 
-  // GET /api/auth/me
-  async getProfile(req: AuthenticatedRequest, res: Response): Promise<void> {
-    try {
-      if (!req.admin?.id) {
-        res.status(401).json({ message: "Unauthorized." });
-        return;
-      }
-
-      const admin = await authModel.findById(req.admin.id);
-      if (!admin || !admin.is_active) {
-        res.status(404).json({ message: "Admin account not found or inactive." });
-        return;
-      }
-
-      res.status(200).json({ data: admin });
-    } catch (error) {
-      console.error("Get admin profile error:", error);
-      res.status(500).json({ message: "Internal server error." });
-    }
-  },
-
-  // PATCH /api/auth/change-password
-  async changePassword(req: AuthenticatedRequest, res: Response): Promise<void> {
-    try {
-      if (!req.admin?.id) {
-        res.status(401).json({ message: "Unauthorized." });
-        return;
-      }
-
-      const { currentPassword, newPassword, secretKey } = req.body as {
-        currentPassword?: string;
-        newPassword?: string;
-        secretKey?: string;
-      };
-
-      if (!currentPassword || !newPassword || !secretKey) {
-        res.status(400).json({ message: "Current password, new password, and secret key are required." });
-        return;
-      }
-
-      if (!authModel.verifySecretKey(secretKey)) {
-        res.status(403).json({ message: "Invalid admin secret key." });
-        return;
-      }
-
-      if (newPassword.length < 8) {
-        res.status(400).json({ message: "New password must be at least 8 characters long." });
-        return;
-      }
-
-      const admin = await authModel.findByEmail(req.admin.email);
-      if (!admin) {
-        res.status(404).json({ message: "Admin account not found." });
-        return;
-      }
-
-      const isCurrentValid = await bcrypt.compare(currentPassword, admin.password_hash);
-      if (!isCurrentValid) {
-        res.status(401).json({ message: "Current password is incorrect." });
-        return;
-      }
-
-      const newHash = await bcrypt.hash(newPassword, 12);
-      await authModel.updatePassword(admin.id, newHash);
-
-      res.status(200).json({ message: "Password updated successfully." });
-    } catch (error) {
-      console.error("Change password error:", error);
-      res.status(500).json({ message: "Internal server error." });
-    }
-  },
-
-  // POST /api/auth/logout
-  async logout(_req: Request, res: Response): Promise<void> {
-    res.status(200).json({ message: "Logged out successfully." });
-  },
 };

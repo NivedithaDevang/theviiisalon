@@ -10,6 +10,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  overflow-x: clip;
 }
 
 /* Header */
@@ -55,6 +56,7 @@
 .booking-page-form {
   width: 100%;
   max-width: 780px;
+  box-sizing: border-box;
   background: rgba(29, 15, 19, 0.78);
   border: 1px solid rgba(216, 180, 103, 0.16);
   border-radius: 22px;
@@ -72,6 +74,8 @@
   display: flex;
   flex-direction: column;
   gap: 0.55rem;
+  min-width: 0;
+  width: 100%;
 }
 
 .booking-page-form label,
@@ -83,10 +87,19 @@
   color: rgba(246, 239, 230, 0.78);
 }
 
+.booking-page-form label small {
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+  color: rgba(246, 239, 230, 0.56);
+}
+
 /* Inputs & Textarea */
 .booking-page-form input,
 .booking-page-form textarea {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   box-sizing: border-box;
   background: rgba(16, 8, 10, 0.72);
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -121,6 +134,8 @@
 .booking-page-form input[type="date"],
 .booking-page-form input[type="time"] {
   color-scheme: dark;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 /* =========================================
@@ -130,10 +145,13 @@
 .luxury-select {
   position: relative;
   width: 100%;
+  min-width: 0;
 }
 
 .luxury-select-trigger {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   box-sizing: border-box;
   background: rgba(16, 8, 10, 0.72);
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -168,6 +186,9 @@
 
 .luxury-select-trigger .placeholder {
   color: rgba(246, 239, 230, 0.42);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .luxury-select-trigger .has-value {
@@ -200,6 +221,7 @@
   border: 1px solid rgba(216, 180, 103, 0.32);
   border-radius: 14px;
   padding: 0.45rem;
+  box-sizing: border-box;
   box-shadow: 0 22px 48px rgba(0, 0, 0, 0.72), 0 0 0 1px rgba(216, 180, 103, 0.08);
   animation: dropdownReveal 0.16s ease-out;
 }
@@ -263,6 +285,7 @@
 /* Individual List Option Row */
 .luxury-select-option {
   width: 100%;
+  box-sizing: border-box;
   background: transparent;
   border: none;
   border-radius: 9px;
@@ -273,7 +296,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 0.75rem;
   text-align: left;
   cursor: pointer;
   transition: background-color 0.18s ease, color 0.18s ease;
@@ -303,6 +326,7 @@
 
 .luxury-option-name {
   line-height: 1.35;
+  min-width: 0;
 }
 
 .luxury-option-meta {
@@ -322,6 +346,7 @@
   font-size: 0.88rem;
   font-weight: 600;
   color: #e3c178;
+  flex-shrink: 0;
 }
 
 /* =========================================
@@ -366,6 +391,7 @@
 /* Submit Button */
 .booking-submit {
   width: 100%;
+  box-sizing: border-box;
   margin-top: 0.4rem;
   padding: 1.05rem 1.75rem;
   border: none;
@@ -400,69 +426,6 @@
   margin: -0.25rem 0 0;
 }
 
-/* Confirmation / Success State */
-.booking-success {
-  width: 100%;
-  max-width: 540px;
-  text-align: center;
-  background: rgba(29, 15, 19, 0.82);
-  border: 1px solid rgba(216, 180, 103, 0.22);
-  border-radius: 22px;
-  padding: 3.25rem 2.25rem;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-}
-
-.booking-success svg:first-child {
-  color: #d8b467;
-}
-
-.booking-success h1 {
-  font-family: "Cormorant Garamond", "Playfair Display", Georgia, serif;
-  font-size: 2.5rem;
-  font-weight: 500;
-  line-height: 1.15;
-  margin: 0;
-}
-
-.booking-success h1 em {
-  color: #e3c178;
-}
-
-.booking-success p {
-  color: rgba(246, 239, 230, 0.72);
-  font-size: 0.95rem;
-  line-height: 1.6;
-  margin: 0;
-}
-
-.booking-reference {
-  width: 100%;
-  margin: 0.75rem 0;
-  padding: 1rem 1.25rem;
-  border-radius: 12px;
-  background: rgba(16, 8, 10, 0.75);
-  border: 1px dashed rgba(216, 180, 103, 0.4);
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-}
-
-.booking-reference small {
-  font-size: 0.7rem;
-  letter-spacing: 0.2em;
-  color: rgba(246, 239, 230, 0.55);
-}
-
-.booking-reference strong {
-  font-size: 1.35rem;
-  letter-spacing: 0.1em;
-  color: #e3c178;
-}
-
 /* =========================================
    MULTI-SERVICE CHIPS, CHECKBOXES & TOTAL
    ========================================= */
@@ -472,6 +435,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .booking-clear-btn {
@@ -496,6 +460,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.7rem;
+  min-width: 0;
 }
 
 .luxury-checkbox {
@@ -556,6 +521,9 @@
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
 }
 
 .selected-services-chips {
@@ -568,6 +536,8 @@
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
+  max-width: 100%;
+  box-sizing: border-box;
   padding: 0.42rem 0.6rem 0.42rem 0.8rem;
   border-radius: 999px;
   background: rgba(216, 180, 103, 0.14);
@@ -576,15 +546,23 @@
   color: #fbf6ef;
 }
 
+.selected-service-chip .chip-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .selected-service-chip .chip-price {
   color: #e3c178;
   font-weight: 600;
   font-size: 0.8rem;
+  flex-shrink: 0;
 }
 
 .selected-service-chip .chip-remove {
   width: 20px;
   height: 20px;
+  flex-shrink: 0;
   border-radius: 50%;
   border: none;
   background: rgba(255, 255, 255, 0.08);
@@ -608,6 +586,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 0.75rem;
   font-size: 0.85rem;
   color: rgba(246, 239, 230, 0.78);
 }
@@ -616,244 +595,12 @@
   font-size: 1.05rem;
   color: #e3c178;
   letter-spacing: 0.02em;
+  flex-shrink: 0;
 }
 
-/* Mobile Responsive */
-@media (max-width: 680px) {
-  .booking-page {
-    padding: 7rem 1rem 3.5rem;
-  }
-
-  .booking-page-form {
-    grid-template-columns: 1fr;
-    padding: 1.75rem 1.35rem;
-    gap: 1.2rem;
-  }
-}
-
-/* Confirmation Review Modal */
-.booking-confirm-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 120;
-  display: grid;
-  place-items: center;
-  padding: 1.25rem;
-  background: rgba(10, 3, 5, 0.82);
-  backdrop-filter: blur(8px);
-}
-
-.booking-confirm-modal {
-  width: 100%;
-  max-width: 520px;
-  background: linear-gradient(160deg, #260d15 0%, #17060b 100%);
-  border: 1px solid rgba(226, 184, 108, 0.35);
-  border-radius: 22px;
-  padding: 1.85rem;
-  color: #f7efe6;
-  box-shadow: 0 28px 60px rgba(0, 0, 0, 0.65);
-}
-
-.confirm-modal-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  padding-bottom: 1.15rem;
-  border-bottom: 1px solid rgba(226, 184, 108, 0.18);
-}
-
-.confirm-eyebrow {
-  display: block;
-  font-size: 0.68rem;
-  letter-spacing: 0.2em;
-  color: #e2b86c;
-  margin-bottom: 0.35rem;
-}
-
-.confirm-modal-top h2 {
-  font-family: "Cormorant Garamond", Georgia, serif;
-  font-size: 1.7rem;
-  font-weight: 500;
-  color: #fbf5ed;
-  margin: 0;
-}
-
-.confirm-close-btn {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  border: 1px solid rgba(226, 184, 108, 0.25);
-  background: rgba(255, 255, 255, 0.03);
-  color: #e2b86c;
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-}
-
-.confirm-details-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.9rem 1rem;
-  padding: 1.25rem 0;
-  border-bottom: 1px solid rgba(226, 184, 108, 0.16);
-}
-
-.confirm-detail-item span {
-  display: block;
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: rgba(247, 239, 230, 0.55);
-  margin-bottom: 0.25rem;
-}
-
-.confirm-detail-item strong {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #fbf5ed;
-  word-break: break-word;
-}
-
-.confirm-services-section {
-  padding: 1.15rem 0;
-}
-
-.confirm-services-label {
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: #e2b86c;
-  margin-bottom: 0.65rem;
-}
-
-.confirm-services-list {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 0.95rem;
-  max-height: 165px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.confirm-services-list li {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.88rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.03);
-}
-
-.confirm-services-list li strong {
-  color: #e2b86c;
-  font-weight: 500;
-}
-
-.confirm-total-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 0.85rem;
-  border-top: 1px dashed rgba(226, 184, 108, 0.3);
-  font-size: 0.95rem;
-}
-
-.confirm-total-row strong {
-  font-family: "Cormorant Garamond", Georgia, serif;
-  font-size: 1.45rem;
-  color: #e2b86c;
-}
-
-.confirm-salon-pay-banner,
-.booking-payment-note {
-  font-size: 0.82rem;
-  line-height: 1.5;
-  color: #edd08c;
-  background: rgba(226, 184, 108, 0.08);
-  border: 1px solid rgba(226, 184, 108, 0.25);
-  border-radius: 12px;
-  padding: 0.75rem 1rem;
-  margin: 0.75rem 0 1.25rem;
-  text-align: center;
-}
-
-.confirm-modal-actions {
-  display: flex;
-  gap: 0.75rem;
-}
-
-.confirm-btn-edit {
-  flex: 1;
-  padding: 0.85rem 1rem;
-  border-radius: 999px;
-  background: transparent;
-  border: 1px solid rgba(226, 184, 108, 0.35);
-  color: #f7efe6;
-  font-size: 0.86rem;
-  cursor: pointer;
-}
-
-.confirm-btn-edit:hover {
-  border-color: #e2b86c;
-  color: #e2b86c;
-}
-
-.confirm-btn-submit {
-  flex: 1.4;
-}
-
-/* Success Screen Close Button & Actions */
-.booking-success {
-  position: relative;
-}
-
-.booking-success-close-x {
-  position: absolute;
-  top: 1.25rem;
-  right: 1.25rem;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 1px solid rgba(226, 184, 108, 0.3);
-  background: rgba(255, 255, 255, 0.04);
-  color: #e2b86c;
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-}
-
-.booking-success-close-x:hover {
-  background: #e2b86c;
-  color: #180a0e;
-}
-
-.booking-success-actions {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.85rem;
-  width: 100%;
-}
-
-.booking-call-link {
-  font-size: 0.82rem;
-  color: rgba(247, 239, 230, 0.68);
-  text-decoration: underline;
-}
-
-@media (max-width: 520px) {
-  .confirm-details-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .confirm-modal-actions {
-    flex-direction: column-reverse;
-  }
-}
+/* =========================================
+   POPUP MODALS (REVIEW & CONFIRMED)
+   ========================================= */
 
 .bp-modal-backdrop {
   position: fixed;
@@ -872,8 +619,9 @@
   position: relative;
   width: 100%;
   max-width: 500px;
-  max-height: 90vh;
+  max-height: 90dvh;
   overflow-y: auto;
+  box-sizing: border-box;
   background: linear-gradient(160deg, #270d15 0%, #16060b 100%);
   border: 1px solid rgba(226, 184, 108, 0.38);
   border-radius: 22px;
@@ -950,7 +698,7 @@
 
 .bp-modal-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.95rem 1rem;
   padding: 1.2rem 0;
   border-bottom: 1px solid rgba(226, 184, 108, 0.16);
@@ -1000,6 +748,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 0.75rem;
   font-size: 0.88rem;
   padding: 0.5rem 0.75rem;
   border-radius: 10px;
@@ -1009,6 +758,7 @@
 .bp-modal-services li strong {
   color: #e2b86c;
   font-weight: 500;
+  flex-shrink: 0;
 }
 
 .bp-modal-total {
@@ -1105,12 +855,372 @@
   color: #fbf5ed;
 }
 
-@media (max-width: 520px) {
-  .bp-modal-grid {
-    grid-template-columns: 1fr;
+/* =========================================
+   MOBILE & TABLET RESPONSIVE (<= 680px)
+   ========================================= */
+@media (max-width: 680px) {
+  .booking-page {
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
+    padding: 5.5rem 0.875rem 3rem;
+    overflow-x: hidden;
   }
 
+  .booking-heading {
+    width: 100%;
+    margin-bottom: 1.35rem;
+    padding: 0 0.25rem;
+  }
+
+  .booking-heading .luxury-tag {
+    font-size: 0.62rem;
+    letter-spacing: 0.16em;
+    margin-bottom: 0.55rem;
+  }
+
+  .booking-heading h1 {
+    font-size: 1.85rem;
+    line-height: 1.15;
+    margin-bottom: 0.5rem;
+  }
+
+  .booking-heading p {
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+
+  /* Single-column form card locked inside viewport */
+  .booking-page-form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 1.15rem 1rem;
+    gap: 0.95rem;
+    border-radius: 16px;
+  }
+
+  .booking-page-form label,
+  .booking-field {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    gap: 0.35rem;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+  }
+
+  .booking-field-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+  }
+
+  .booking-page-form label small {
+    font-size: 0.68rem;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    line-height: 1.35;
+  }
+
+  /* Compact inputs */
+  .booking-page-form input,
+  .booking-page-form textarea,
+  .luxury-select-trigger {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    height: auto;
+    min-height: 40px;
+    padding: 0.62rem 0.8rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+  }
+
+  .booking-page-form textarea {
+    min-height: 82px;
+  }
+
+  .luxury-select-chevron {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Dropdown menu */
+  .luxury-select-menu {
+    max-height: 240px;
+    padding: 0.35rem;
+    border-radius: 12px;
+  }
+
+  .luxury-select-group-title {
+    padding: 0.4rem 0.55rem 0.25rem;
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+  }
+
+  .luxury-select-option {
+    padding: 0.55rem 0.6rem;
+    font-size: 0.82rem;
+    gap: 0.5rem;
+    border-radius: 8px;
+  }
+
+  .luxury-option-meta small,
+  .luxury-option-price {
+    font-size: 0.76rem;
+  }
+
+  .luxury-select-footer {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+    gap: 0.45rem;
+    padding: 0.55rem 0.65rem;
+    font-size: 0.72rem;
+  }
+
+  .luxury-select-done {
+    width: 100%;
+    padding: 0.45rem 0.8rem;
+    font-size: 0.76rem;
+  }
+
+  /* Selected services chips & total */
+  .booking-label-row {
+    gap: 0.4rem;
+  }
+
+  .booking-clear-btn {
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+  }
+
+  .selected-services-box {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 0.7rem 0.75rem;
+    border-radius: 11px;
+    gap: 0.65rem;
+    margin-top: 0.25rem;
+  }
+
+  .selected-services-chips {
+    gap: 0.4rem;
+  }
+
+  .selected-service-chip {
+    max-width: 100%;
+    padding: 0.32rem 0.45rem 0.32rem 0.65rem;
+    font-size: 0.76rem;
+    gap: 0.35rem;
+  }
+
+  .selected-service-chip .chip-price {
+    font-size: 0.74rem;
+  }
+
+  .selected-service-chip .chip-remove {
+    width: 18px;
+    height: 18px;
+  }
+
+  .selected-services-total {
+    padding-top: 0.55rem;
+    font-size: 0.78rem;
+  }
+
+  .selected-services-total strong {
+    font-size: 0.92rem;
+  }
+
+  /* Submit & notices */
+  .booking-submit {
+    min-height: 42px;
+    padding: 0.72rem 1.1rem;
+    font-size: 0.85rem;
+    margin-top: 0.2rem;
+  }
+
+  .booking-disclaimer {
+    font-size: 0.74rem;
+    line-height: 1.4;
+    margin-top: 0;
+  }
+
+  .booking-form-notice,
+  .booking-form-message {
+    padding: 0.6rem 0.75rem;
+    font-size: 0.76rem;
+    border-radius: 9px;
+  }
+
+  /* =========================================
+     COMPACT CENTERED MODALS ON MOBILE
+     ========================================= */
+  .bp-modal-backdrop {
+    padding: 4.5rem 0.9rem 4rem;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .bp-modal-card {
+    width: 100%;
+    max-width: 380px;
+    max-height: calc(100dvh - 8.5rem);
+    overflow-y: auto;
+    padding: 1rem 0.95rem;
+    border-radius: 16px;
+  }
+
+  .bp-modal-header {
+    padding-bottom: 0.65rem;
+  }
+
+  .bp-modal-tag {
+    font-size: 0.56rem;
+    padding: 0.18rem 0.55rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .bp-modal-header h2,
+  .bp-success-title {
+    font-size: 1.25rem;
+  }
+
+  .bp-modal-x {
+    width: 28px;
+    height: 28px;
+  }
+
+  .bp-modal-x--float {
+    top: 0.85rem;
+    right: 0.85rem;
+  }
+
+  /* 2-column detail grid keeps modal height compact */
+  .bp-modal-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem 0.7rem;
+    padding: 0.7rem 0;
+  }
+
+  .bp-modal-grid small {
+    font-size: 0.58rem;
+    margin-bottom: 0.12rem;
+  }
+
+  .bp-modal-grid strong {
+    font-size: 0.78rem;
+    line-height: 1.3;
+  }
+
+  .bp-modal-services {
+    padding: 0.65rem 0 0.25rem;
+  }
+
+  .bp-section-lbl {
+    font-size: 0.6rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .bp-modal-services ul {
+    max-height: 95px;
+    gap: 0.35rem;
+    margin-bottom: 0.55rem;
+  }
+
+  .bp-modal-services li {
+    font-size: 0.76rem;
+    padding: 0.35rem 0.55rem;
+    border-radius: 8px;
+  }
+
+  .bp-modal-total {
+    padding-top: 0.55rem;
+    font-size: 0.82rem;
+  }
+
+  .bp-modal-total strong {
+    font-size: 1.15rem;
+  }
+
+  .bp-pay-banner {
+    font-size: 0.72rem;
+    line-height: 1.35;
+    padding: 0.5rem 0.65rem;
+    margin: 0.6rem 0 0.75rem;
+    border-radius: 10px;
+  }
+
+  /* Side-by-side Edit and Confirm buttons */
   .bp-modal-footer {
-    flex-direction: column-reverse;
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+  }
+
+  .bp-btn-secondary {
+    flex: 0.85;
+    min-height: 38px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.78rem;
+  }
+
+  .bp-btn-primary {
+    flex: 1.4;
+    min-height: 38px;
+    padding: 0.5rem 0.85rem;
+    font-size: 0.78rem;
+    justify-content: center;
+  }
+
+  .bp-btn-full {
+    min-height: 38px;
+    padding: 0.55rem 0.9rem;
+    font-size: 0.8rem;
+  }
+
+  .bp-success-icon {
+    width: 34px;
+    height: 34px;
+    margin-bottom: 0.5rem;
+  }
+
+  .bp-success-text {
+    font-size: 0.78rem;
+    line-height: 1.45;
+    margin: 0.5rem 0 0.75rem;
+  }
+
+  .bp-ref-box {
+    padding: 0.6rem 0.75rem;
+    border-radius: 11px;
+  }
+
+  .bp-ref-box strong {
+    font-size: 1.05rem;
+    letter-spacing: 0.1em;
+  }
+}
+
+@media (max-width: 380px) {
+  .booking-page {
+    padding: 5.25rem 0.7rem 2.75rem;
+  }
+
+  .booking-page-form {
+    padding: 1rem 0.8rem;
+  }
+
+  .bp-modal-backdrop {
+    padding: 4.25rem 0.65rem 3.5rem;
+  }
+
+  .bp-modal-card {
+    padding: 0.9rem 0.8rem;
   }
 }

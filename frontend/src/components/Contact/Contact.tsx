@@ -1,5 +1,5 @@
 import React from "react";
-import { Phone, Mail, MapPin, Clock, ExternalLink, Sparkles } from "lucide-react";
+import { Phone, Mail, MapPin, Clock, ExternalLink, MessageCircle, Sparkles } from "lucide-react";
 import "./Contact.css";
 
 export const Contact: React.FC = () => {
@@ -64,6 +64,39 @@ export const Contact: React.FC = () => {
             <h3>Direct Calls</h3>
             <a href="tel:+916362429259" className="link-item">
               +91 63624 29259
+            </a>
+            <a
+              href="https://wa.me/916362429259?text=Hello%20THE%20VIII%20SALON%2C%20I%27d%20like%20to%20make%20an%20enquiry."
+              className="whatsapp-contact-link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <MessageCircle size={17} aria-hidden="true" />
+              Reach out on WhatsApp
+            </a>
+            <a
+              href="https://www.instagram.com/theviiisalon.in?hvrq=MXRoa2ltcmdpZWZqZA=="
+              className="instagram-contact-link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <svg
+                width="17"
+                height="17"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+                focusable="false"
+              >
+                <rect x="3" y="3" width="18" height="18" rx="5" />
+                <circle cx="12" cy="12" r="4" />
+                <circle cx="18" cy="6" r="1" fill="currentColor" stroke="none" />
+              </svg>
+              DM us on Instagram
             </a>
             <p className="contact-sub">Available during working hours</p>
           </div>

@@ -12,7 +12,7 @@ export const Hero: React.FC = () => {
 
       <div className="hero-content">
         <span className="luxury-kicker">
-          <Sparkles size={13} /> HAUTE BEAUTÉ & COIFFURE
+          <Sparkles size={13} /> THE ATELIER OF BESPOKE BEAUTY
         </span>
 
         <h1 className="hero-title">

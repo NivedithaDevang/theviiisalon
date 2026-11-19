@@ -1,19 +1,21 @@
 import { Router } from "express";
-import { serviceController } from "../controller/serviceController.js";
+import {
+  createService,
+  getAdminServices,
+  getServiceCategories,
+  getServices,
+  removeService,
+  updateService,
+} from "../controller/serviceController.js";
 import { requireAdminAuth } from "../middleware/authMiddleware.js";
 
 const router = Router();
 
-// Public (Salon menu & Booking page)
-router.get("/", serviceController.getPublicServices);
-router.get("/categories", serviceController.getCategories);
-router.get("/:id", serviceController.getServiceById);
-
-// Protected (Admin dashboard)
-router.get("/admin/all", requireAdminAuth, serviceController.getAdminServices);
-router.post("/", requireAdminAuth, serviceController.createService);
-router.put("/:id", requireAdminAuth, serviceController.updateService);
-router.patch("/:id", requireAdminAuth, serviceController.updateService);
-router.delete("/:id", requireAdminAuth, serviceController.deleteService);
+router.get("/categories", requireAdminAuth, getServiceCategories);
+router.get("/admin/all", requireAdminAuth, getAdminServices);
+router.get("/", getServices);
+router.post("/", requireAdminAuth, createService);
+router.patch("/:id", requireAdminAuth, updateService);
+router.delete("/:id", requireAdminAuth, removeService);
 
 export default router;

@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Search, X, Sparkles, ArrowUpRight, Plus } from "lucide-react";
+import { Search, X, Sparkles, ArrowUpRight } from "lucide-react";
 import { api } from "../../api";
 import { catalogServiceOptions } from "../../utils/servicesData";
 import { Header } from "../../components/Header/Header";
@@ -14,11 +14,6 @@ export interface ServiceItem {
   price: number;
   duration?: string;
   description?: string;
-}
-
-interface ServicesPageProps {
-  isAdmin?: boolean;
-  onReserveService?: (service: ServiceItem) => void;
 }
 
 const CATEGORIES = [
@@ -46,10 +41,7 @@ const CATEGORY_TAGLINES: Record<string, string> = {
   Nails: "Sculpted extensions, bespoke nail art, and signature spa manicures & pedicures.",
 };
 
-export default function ServicesPage({
-  isAdmin = false,
-  onReserveService,
-}: ServicesPageProps) {
+export default function ServicesPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [services, setServices] = useState<ServiceItem[]>([]);
@@ -61,18 +53,6 @@ export default function ServicesPage({
     CATEGORY_QUERY_MAP[paramCategory] || "All"
   );
   const [searchQuery, setSearchQuery] = useState("");
-
-  // Admin Modal / Form State
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingService, setEditingService] = useState<ServiceItem | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    category: "Hair",
-    price: "",
-    duration: "",
-    description: "",
-  });
 
   useEffect(() => {
     const mapped = CATEGORY_QUERY_MAP[paramCategory];
@@ -121,73 +101,7 @@ export default function ServicesPage({
     }, {});
   }, [filteredServices]);
 
-  const openModal = (service?: ServiceItem) => {
-    if (service) {
-      setEditingService(service);
-      setFormData({
-        name: service.name,
-        category: service.category || "Hair",
-        price: String(service.price),
-        duration: service.duration || "",
-        description: service.description || "",
-      });
-    } else {
-      setEditingService(null);
-      setFormData({
-        name: "",
-        category: activeCategory !== "All" ? activeCategory : "Hair",
-        price: "",
-        duration: "",
-        description: "",
-      });
-    }
-    setIsModalOpen(true);
-  };
-
-  const handleSaveService = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.name.trim() || !formData.price) return;
-
-    const payload = {
-      name: formData.name.trim(),
-      category: formData.category,
-      price: Number(formData.price),
-      duration: formData.duration.trim(),
-      description: formData.description.trim(),
-    };
-
-    try {
-      setSubmitting(true);
-      if (editingService) {
-        await api.put(`/services/${editingService.id}`, payload);
-      } else {
-        await api.post("/services", payload);
-      }
-      setIsModalOpen(false);
-      await fetchServices();
-    } catch (err: any) {
-      alert(err.response?.data?.message || "Could not save service.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleDeleteService = async (id: number, name: string) => {
-    if (!window.confirm(`Remove "${name}" from the menu?`)) return;
-    try {
-      await api.delete(`/services/${id}`);
-      setServices((prev) => prev.filter((s) => s.id !== id));
-    } catch (err: any) {
-      alert(err.response?.data?.message || "Failed to delete service.");
-    }
-  };
-
   const handleReserveService = (service: ServiceItem) => {
-    if (onReserveService) {
-      onReserveService(service);
-      return;
-    }
-
     navigate(`/booking?service=${encodeURIComponent(String(service.id))}`);
   };
 
@@ -215,14 +129,6 @@ export default function ServicesPage({
             women and men at BTM Layout 2nd Stage.
           </p>
 
-          {isAdmin && (
-            <div className="sp-admin-bar">
-              <button onClick={() => openModal()} className="sp-btn-gold">
-                <Plus size={16} />
-                <span>Add New Ritual</span>
-              </button>
-            </div>
-          )}
         </header>
 
         {/* Sticky Frosted Filter & Search Bar */}
@@ -329,33 +235,14 @@ export default function ServicesPage({
                           </span>
                         </div>
 
-                        {isAdmin ? (
-                          <div className="sp-admin-actions">
-                            <button
-                              onClick={() => openModal(service)}
-                              className="sp-btn-edit"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              onClick={() =>
-                                handleDeleteService(service.id, service.name)
-                              }
-                              className="sp-btn-del"
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => handleReserveService(service)}
-                            className="sp-btn-reserve"
-                          >
-                            <span>Reserve</span>
-                            <ArrowUpRight size={14} />
-                          </button>
-                        )}
+                        <button
+                          type="button"
+                          onClick={() => handleReserveService(service)}
+                          className="sp-btn-reserve"
+                        >
+                          <span>Reserve</span>
+                          <ArrowUpRight size={14} />
+                        </button>
                       </div>
                     </article>
                   ))}
@@ -366,95 +253,6 @@ export default function ServicesPage({
         )}
       </div>
 
-      {/* Admin Modal */}
-      {isAdmin && isModalOpen && (
-        <div className="sp-modal-overlay">
-          <div className="sp-modal">
-            <h3>{editingService ? "Edit Ritual" : "Add New Ritual"}</h3>
-
-            <form onSubmit={handleSaveService} className="sp-form">
-              <div className="sp-field">
-                <label>Service Name *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  placeholder="e.g., Balayage"
-                />
-              </div>
-
-              <div className="sp-field-row">
-                <div className="sp-field">
-                  <label>Category *</label>
-                  <select
-                    className="salon-select"
-                    value={formData.category}
-                    onChange={(e) =>
-                      setFormData({ ...formData, category: e.target.value })
-                    }
-                  >
-                    {CATEGORIES.filter((c) => c !== "All").map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="sp-field">
-                  <label>Price (₹) *</label>
-                  <input
-                    type="number"
-                    required
-                    min="0"
-                    value={formData.price}
-                    onChange={(e) =>
-                      setFormData({ ...formData, price: e.target.value })
-                    }
-                    placeholder="3499"
-                  />
-                </div>
-              </div>
-
-              <div className="sp-field">
-                <label>Description (Optional)</label>
-                <textarea
-                  rows={2}
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
-                  placeholder="Brief note on products or benefits..."
-                />
-              </div>
-
-              <div className="sp-modal-footer">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="sp-btn-ghost"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="sp-btn-gold"
-                >
-                  {submitting
-                    ? "Saving..."
-                    : editingService
-                    ? "Update Ritual"
-                    : "Create Ritual"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </section>
     <Footer />
     </div>

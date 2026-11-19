@@ -217,10 +217,62 @@
 /* Responsive */
 @media (max-width: 640px) {
   .home-services-section {
-    padding: 4.5rem 1.25rem;
+    padding: 3.75rem 1rem;
+  }
+
+  .home-services-header {
+    margin-bottom: 2rem;
+  }
+
+  .home-services-title {
+    font-size: clamp(1.9rem, 8.5vw, 2.5rem);
+  }
+
+  .home-services-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .home-services-grid {
+    gap: 0.9rem;
   }
 
   .home-service-card {
     max-width: 100%;
+    min-width: 0;
+    flex-basis: 100%;
+    padding: 1.25rem;
+    border-radius: 16px;
+  }
+
+  .card-top-row {
+    margin-bottom: 1rem;
+  }
+
+  .card-body h3 {
+    font-size: 1.3rem;
+  }
+
+  .card-desc,
+  .card-highlights li,
+  .card-footer {
+    font-size: 0.78rem;
+  }
+
+  .btn-explore-all-services {
+    min-height: 44px;
+    justify-content: center;
+    padding: 0.8rem 1.2rem;
+    font-size: 0.84rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .home-services-section {
+    padding-right: 0.8rem;
+    padding-left: 0.8rem;
+  }
+
+  .home-service-card {
+    padding: 1.05rem;
   }
 }

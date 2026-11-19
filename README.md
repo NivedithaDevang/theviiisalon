@@ -25,7 +25,7 @@ Copy `backend/.env.example` to `backend/.env`. Set `ADMIN_EMAIL`, `ADMIN_PASSWOR
 
 ## Database
 
-Run `backend/schema.sql` in MySQL to create the normalized service, customer, booking, settings and notification tables. The next integration step is replacing the development store in `backend/app.ts` with repository calls using the existing `mysql2/promise` pool.
+Run `backend/schema.sql` in MySQL to create the normalized service, customer, booking, settings and notification tables. For an existing database, run `backend/migrations/001_permanent_service_deletion.sql` once to allow permanent service deletion while preserving booking history. The next integration step is replacing the development store in `backend/app.ts` with repository calls using the existing `mysql2/promise` pool.
 
 ## Validation
 

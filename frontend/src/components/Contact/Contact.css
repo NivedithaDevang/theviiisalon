@@ -101,3 +101,106 @@
   font-size: 0.78rem;
   color: var(--color-text-muted);
 }
+
+.whatsapp-contact-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  width: fit-content;
+  min-height: 44px;
+  margin: 0.35rem 0 0.55rem;
+  padding: 0.65rem 0.95rem;
+  border: 1px solid rgba(37, 211, 102, 0.5);
+  border-radius: 999px;
+  background: rgba(37, 211, 102, 0.1);
+  color: #7ee5a2;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.whatsapp-contact-link:hover {
+  transform: translateY(-1px);
+  border-color: #25d366;
+  background: rgba(37, 211, 102, 0.18);
+  color: #a7f3c1;
+}
+
+.whatsapp-contact-link:focus-visible {
+  outline: 2px solid #7ee5a2;
+  outline-offset: 3px;
+}
+
+.instagram-contact-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  width: fit-content;
+  min-height: 44px;
+  margin: 0.35rem 0 0.55rem;
+  padding: 0.65rem 0.95rem;
+  border: 1px solid rgba(225, 84, 139, 0.5);
+  border-radius: 999px;
+  background: rgba(225, 84, 139, 0.1);
+  color: #f08bb4;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.instagram-contact-link:hover {
+  transform: translateY(-1px);
+  border-color: #e1548b;
+  background: rgba(225, 84, 139, 0.18);
+  color: #ffb0ce;
+}
+
+.instagram-contact-link:focus-visible {
+  outline: 2px solid #f08bb4;
+  outline-offset: 3px;
+}
+
+@media (max-width: 640px) {
+  .contact-section {
+    padding: 3.75rem 1rem;
+  }
+
+  .contact-container h2 {
+    font-size: clamp(1.9rem, 8.5vw, 2.5rem);
+  }
+
+  .contact-desc {
+    margin-bottom: 2rem;
+    font-size: 0.9rem;
+  }
+
+  .contact-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.9rem;
+  }
+
+  .contact-card {
+    padding: 1.4rem 1.25rem;
+    border-radius: 16px;
+  }
+
+  .contact-card h3 {
+    font-size: 1.05rem;
+  }
+
+  .address-text,
+  .link-item {
+    font-size: 0.86rem;
+    overflow-wrap: anywhere;
+  }
+
+  .whatsapp-contact-link,
+  .instagram-contact-link {
+    width: 100%;
+    font-size: 0.84rem;
+  }
+}

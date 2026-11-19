@@ -4,7 +4,6 @@ import cookieParser from "cookie-parser";
 import { db } from "./config/database.js";
 import { REACTURL } from "./config/env.js";
 import router from "./routes/index.js";
-import { ro } from "zod/locales";
 
 const app: Application = express();
 

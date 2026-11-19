@@ -20,7 +20,7 @@ export const Header: React.FC = () => {
       <nav className="navbar-container">
         {/* Brand Logo */}
         <Link to="/" className="logo-brand" onClick={() => setMenuOpen(false)}>
-          <span className="logo-mark">VIII</span>
+          <img src="/logo.jpeg" alt="THE VIII Salon logo" className="logo-image" />
           <div className="logo-divider"></div>
           <div className="logo-details">
             <span className="logo-name">THE VIII</span>

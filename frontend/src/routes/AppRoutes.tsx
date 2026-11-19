@@ -5,7 +5,7 @@ import AdminPage from "../pages/AdminPage/AdminPage";
 import ContactPage from "../pages/ContactPage/ContactPage";
 import NotFoundPage from "../pages/NotFoundPage";
 import ServicesPage from "../pages/ServicesPage/ServicesPage";
-import BookingPage from "../pages/BookingPage";
+import BookingPage from "../pages/BookingPage/BookingPage";
 function AppRoutes() {
     return (
         <BrowserRouter>

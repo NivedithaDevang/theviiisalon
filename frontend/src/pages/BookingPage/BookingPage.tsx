@@ -2,10 +2,10 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { AxiosError } from "axios";
 import { ArrowRight, CalendarDays, Check, CheckCircle2, ChevronDown, X } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { api } from "../api";
-import { catalogServiceOptions } from "../utils/servicesData";
-import { Header } from "../components/Header/Header";
-import { Footer } from "../components/Footer/Footer";
+import { api } from "../../api";
+import { catalogServiceOptions } from "../../utils/servicesData";
+import { Header } from "../../components/Header/Header";
+import { Footer } from "../../components/Footer/Footer";
 import "./BookingPage.css";
 
 interface ServiceOption {

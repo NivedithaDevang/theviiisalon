@@ -2,9 +2,26 @@ import { Request, Response } from "express";
 import { PoolConnection } from "mysql2/promise";
 import { ResultSetHeader, RowDataPacket } from "mysql2";
 import { db } from "../config/database.js";
-import { BookingRow } from "../model/bookingModel.js";
 import { generateBookingReference } from "../utils/generateBookingReference.js";
 import { sendBookingEmails } from "../services/emailService.js";
+
+interface BookingRow extends RowDataPacket {
+  id: number;
+  reference: string;
+  name: string;
+  phone: string;
+  email?: string | null;
+  service_id: number | null;
+  service_name: string;
+  bill_amount: number;
+  duration: number;
+  booking_date: string;
+  booking_time: string;
+  status: "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED" | "REJECTED";
+  notes?: string | null;
+  internal_notes?: string | null;
+  created_at?: Date;
+}
 
 interface IncomingServiceItem {
   id: number;

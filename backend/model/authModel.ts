@@ -7,7 +7,7 @@ export interface AdminUser extends RowDataPacket {
   id: number;
   email: string;
   password_hash: string;
-  role: "ADMIN" | "SUPER_ADMIN";
+  role: "ADMIN";
   is_active: boolean;
   created_at: Date;
   updated_at: Date;
@@ -18,7 +18,7 @@ export const authModel = {
     const email = process.env.ADMIN_EMAIL?.trim().toLowerCase();
     const defaultPassword = process.env.ADMIN_DEFAULT_PASSWORD;
     if (!email || !defaultPassword) {
-      console.warn("ADMIN_EMAIL or ADMIN_DEFAULT_PASSWORD is missing; default admin bootstrap skipped.");
+      console.warn("Please enter admin email and password");
       return;
     }
 
@@ -29,7 +29,7 @@ export const authModel = {
 
     const passwordHash = await bcrypt.hash(defaultPassword, 12);
     await this.createAdmin(email, passwordHash);
-    console.info("Created the initial admin account from configured environment credentials.");
+    console.info("Admin account created succesfully");
   },
 
   // Timing-safe check for the salon admin secret key
@@ -72,7 +72,7 @@ export const authModel = {
   async createAdmin(
     email: string,
     passwordHash: string,
-    role: "ADMIN" | "SUPER_ADMIN" = "ADMIN"
+    role: "ADMIN" = "ADMIN"
   ): Promise<number> {
     const [result] = await db.query<ResultSetHeader>(
       `INSERT INTO admins (email, password_hash, role)
@@ -82,12 +82,4 @@ export const authModel = {
     return result.insertId;
   },
 
-  // Update admin password
-  async updatePassword(id: number, newPasswordHash: string): Promise<boolean> {
-    const [result] = await db.query<ResultSetHeader>(
-      `UPDATE admins SET password_hash = ? WHERE id = ?`,
-      [newPasswordHash, id]
-    );
-    return result.affectedRows > 0;
-  },
 };

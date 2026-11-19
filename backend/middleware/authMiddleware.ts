@@ -15,6 +15,7 @@ interface AdminJwtPayload {
   id: number;
   email: string;
   role: AdminRole;
+  tokenType: string;
 }
 
 export const requireAdminAuth = async (
@@ -46,6 +47,10 @@ export const requireAdminAuth = async (
 
     if (!decoded?.id || decoded.role !== "ADMIN") {
       res.status(403).json({ success: false, message: "Access denied. Admin privileges required." });
+      return;
+    }
+    if (decoded.tokenType !== "admin-session") {
+      res.status(401).json({ success: false, message: "A verified admin session is required." });
       return;
     }
 

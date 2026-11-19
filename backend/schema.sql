@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS bookings (
   id BIGINT AUTO_INCREMENT PRIMARY KEY,
   reference VARCHAR(32) NOT NULL UNIQUE,
   customer_id INT NOT NULL,
-  service_id INT NOT NULL,
+  service_id INT NULL,
   service_name_snapshot VARCHAR(500) NOT NULL,
   price_snapshot DECIMAL(10,2) NOT NULL,
   duration_snapshot SMALLINT UNSIGNED NOT NULL,
@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS bookings (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (customer_id) REFERENCES customers(id),
-  FOREIGN KEY (service_id) REFERENCES services(id),
+  FOREIGN KEY (service_id) REFERENCES services(id) ON DELETE SET NULL,
   INDEX idx_booking_slot_check (appointment_date, appointment_time, status),
   INDEX idx_booking_status_date (status, appointment_date)
 );

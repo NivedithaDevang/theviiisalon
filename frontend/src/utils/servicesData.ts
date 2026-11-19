@@ -202,17 +202,6 @@ export const servicesCatalog: CategoryData[] = [
   },
 ];
 
-// Flat export for dropdown selection in the Booking component
-export const allServicesFlat = servicesCatalog.flatMap((cat) =>
-  cat.subCategories.flatMap((sub) =>
-    sub.items.map((item) => ({
-      name: `${item.name} (${cat.label})`,
-      rawName: item.name,
-      price: item.price,
-    }))
-  )
-);
-
 export interface CatalogServiceOption {
   id: number;
   name: string;
