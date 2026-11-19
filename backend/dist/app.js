@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import { db } from "./config/database.js";
 import { REACTURL } from "./config/env.js";
 import router from "./routes/index.js";
 const app = express();
@@ -22,27 +21,9 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
-// Base endpoints
+// Base endpoint
 app.get("/", (_req, res) => {
     res.json({ message: "The VIII salon API is running" });
-});
-app.get("/status", (_req, res) => {
-    res.status(200).json({ status: "ok" });
-});
-app.get("/health", async (_req, res) => {
-    try {
-        await db.query("SELECT 1");
-        res.status(200).json({
-            status: "ok",
-            database: "connected",
-        });
-    }
-    catch (error) {
-        res.status(503).json({
-            status: "error",
-            database: "disconnected",
-        });
-    }
 });
 // API routes
 app.use("/api", router);
