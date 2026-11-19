@@ -96,8 +96,29 @@ function formatDisplayTime(time24: string): string {
 
 function getErrorMessage(error: unknown): string {
   if (error instanceof AxiosError) {
-    return error.response?.data?.message || "We couldn't complete that request. Please try again.";
+    const responseData: unknown = error.response?.data;
+    if (
+      typeof responseData === "object" &&
+      responseData !== null &&
+      "message" in responseData &&
+      typeof responseData.message === "string"
+    ) {
+      return responseData.message;
+    }
+
+    if (!error.response) {
+      return "We couldn't reach the appointment service. Please check your connection and try again.";
+    }
+
+    if (error.response.status === 404) {
+      return "The appointment service is unavailable. Please refresh the page and try again.";
+    }
+
+    if (error.response.status >= 500) {
+      return "The appointment service couldn't save your request right now. Please try again shortly.";
+    }
   }
+
   return "We couldn't complete that request. Please try again.";
 }
 

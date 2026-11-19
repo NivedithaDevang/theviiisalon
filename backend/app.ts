@@ -20,7 +20,27 @@ const corsOptions: CorsOptions = {
   allowedHeaders: ["Content-Type", "Authorization"],
 };
 
-app.use(cors(corsOptions));
+app.use((req, res, next) => {
+  const origin = req.get("origin");
+  const host = req.get("host");
+
+  if (origin && host) {
+    try {
+      const parsedOrigin = new URL(origin);
+      if (
+        (parsedOrigin.protocol === "http:" || parsedOrigin.protocol === "https:") &&
+        parsedOrigin.host === host
+      ) {
+        next();
+        return;
+      }
+    } catch {
+      // Let the CORS middleware reject malformed origins.
+    }
+  }
+
+  cors(corsOptions)(req, res, next);
+});
 app.use(express.json());
 app.use(cookieParser());
 
