@@ -27,7 +27,7 @@ app.use(cookieParser());
 
 // Base endpoints
 app.get("/", (_req: Request, res: Response) => {
-  res.json({ message: "CityPass API is running" });
+  res.json({ message: "The VIII salon API is running" });
 });
 
 app.get("/status", (_req: Request, res: Response) => {

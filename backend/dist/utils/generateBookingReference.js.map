@@ -1,0 +1,1 @@
+{"version":3,"file":"generateBookingReference.js","sourceRoot":"","sources":["../../utils/generateBookingReference.ts"],"names":[],"mappings":"AAAA,OAAO,MAAM,MAAM,aAAa,CAAC;AAEjC,MAAM,CAAC,MAAM,wBAAwB,GAAG,GAAW,EAAE;IACnD,MAAM,SAAS,GAAG,MAAM,CAAC,WAAW,CAAC,CAAC,CAAC,CAAC,QAAQ,CAAC,KAAK,CAAC,CAAC,WAAW,EAAE,CAAC;IACtE,OAAO,QAAQ,SAAS,EAAE,CAAC;AAC7B,CAAC,CAAC"}
