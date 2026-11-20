@@ -301,7 +301,12 @@ export default function BookingPage() {
     }
 
     const trimmedEmail = email.trim();
-    if (trimmedEmail && !EMAIL_REGEX.test(trimmedEmail)) {
+    if (!trimmedEmail) {
+      setError("Please enter your email address to receive booking confirmation.");
+      return;
+    }
+
+    if (!EMAIL_REGEX.test(trimmedEmail)) {
       setError("Please enter a valid email address (e.g., name@example.com).");
       return;
     }

@@ -1,20 +1,23 @@
+import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import app from "./app.js";
 import { connectDB } from "./config/database.js";
 import { SERVER_PORT } from "./config/env.js";
 import { authModel } from "./model/authModel.js";
-const PORT = SERVER_PORT ?? 3000;
+const port = Number(SERVER_PORT) || 3000;
 async function startServer() {
-    try {
-        await connectDB();
-        await authModel.ensureDefaultAdmin();
-        app.listen(PORT, () => {
-            console.log(`Server running on port ${PORT}`);
-        });
-    }
-    catch (error) {
-        console.error("Database connection failed. Shutting down server:", error);
-        process.exit(1);
-    }
+    await connectDB();
+    await authModel.ensureDefaultAdmin();
+    app.listen(port, () => {
+        console.log(`Server running on port ${port}`);
+    });
 }
-startServer();
+const isDirectExecution = process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1]);
+if (isDirectExecution) {
+    startServer().catch((error) => {
+        console.error("Server startup failed:", error);
+        process.exit(1);
+    });
+}
+export default app;
 //# sourceMappingURL=server.js.map

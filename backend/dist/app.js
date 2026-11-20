@@ -4,15 +4,27 @@ import cookieParser from "cookie-parser";
 import { REACTURL } from "./config/env.js";
 import router from "./routes/index.js";
 const app = express();
+const configuredOrigins = (REACTURL ?? "")
+    .split(",")
+    .map((origin) => origin.trim().replace(/\/+$/, ""))
+    .filter(Boolean);
 const corsOptions = {
     origin: (origin, callback) => {
-        // Allows requests without origin (e.g., Postman/mobile apps) or matching frontend URL
-        if (!origin || origin === REACTURL) {
+        if (!origin) {
             callback(null, true);
+            return;
         }
-        else {
-            callback(new Error("Not allowed by CORS"));
+        const cleanOrigin = origin.replace(/\/+$/, "");
+        const isCloudflarePreview = /^https:\/\/[a-z0-9-]+\.theviiisalon\.pages\.dev$/.test(cleanOrigin);
+        const isLocalFrontend = cleanOrigin === "http://localhost:5173";
+        if (configuredOrigins.includes(cleanOrigin) ||
+            cleanOrigin === "https://theviiisalon.pages.dev" ||
+            isCloudflarePreview ||
+            isLocalFrontend) {
+            callback(null, true);
+            return;
         }
+        callback(new Error(`Not allowed by CORS: ${origin}`));
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],

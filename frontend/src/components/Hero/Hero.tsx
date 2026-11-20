@@ -46,7 +46,7 @@ export const Hero: React.FC = () => {
       <div className="hero-visual-wrapper">
         <div className="gold-diffuse-glow"></div>
         <img
-          src="../../../public/salon-interior.jpg"
+          src="/salon-interior.jpg"
           alt="THE VIII Luxury Salon Sanctuary"
           className="salon-interior-fade-img"
         />
