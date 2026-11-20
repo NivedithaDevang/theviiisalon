@@ -1,22 +1,55 @@
-import app from "./app.js";
-import { connectDB } from "./config/database.js";
-import { SERVER_PORT } from "./config/env.js";
-import { authModel } from "./model/authModel.js";
+import express, { Application } from "express";
+import cors, { CorsOptions } from "cors";
+import cookieParser from "cookie-parser";
+import { REACTURL } from "./config/env.js";
+import router from "./routes/index.js";
 
-const PORT: number | string = SERVER_PORT ?? 3000;
+const app: Application = express();
 
-async function startServer(): Promise<void> {
-  try {
-    await connectDB();
-    await authModel.ensureDefaultAdmin();
+// Normalize REACTURL (removes accidental trailing slashes and spaces)
+const normalizedReactUrl = REACTURL?.trim().replace(/\/+$/, "");
 
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
-  } catch (error) {
-    console.error("Database connection failed. Shutting down server:", error);
-    process.exit(1);
-  }
-}
+const allowedOrigins = [
+  normalizedReactUrl,
+  "https://theviiisalon.pages.dev",
+  "http://localhost:5173",
+].filter((url): url is string => Boolean(url));
 
-startServer();
+const corsOptions: CorsOptions = {
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    // Allow requests with no origin (Postman, curl, mobile apps)
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    const cleanOrigin = origin.replace(/\/+$/, "");
+
+    // Allow exact matches or Cloudflare Pages preview URLs (*.theviiisalon.pages.dev)
+    if (
+      allowedOrigins.includes(cleanOrigin) ||
+      /^https:\/\/[a-z0-9-]+\.theviiisalon\.pages\.dev$/.test(cleanOrigin)
+    ) {
+      return callback(null, true);
+    }
+
+    return callback(new Error(`Not allowed by CORS: ${origin}`));
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
+app.use(express.json());
+app.use(cookieParser());
+
+// Base endpoint
+app.get("/", (_req, res) => {
+  res.json({ message: "The VIII salon API is running" });
+});
+
+// API routes
+app.use("/api", router);
+app.use(router);
+
+export default app;
