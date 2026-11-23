@@ -10,6 +10,7 @@ import type {
   ExecutionContext,
   IncomingRequestCfProperties,
   Request as WorkerRequest,
+  Response as WorkerResponse,
   Fetcher,
 } from "@cloudflare/workers-types";
 
@@ -45,7 +46,7 @@ export default {
     request: WorkerRequest<unknown, IncomingRequestCfProperties<unknown>>,
     env: Record<string, unknown> & { ASSETS?: Fetcher },
     ctx: ExecutionContext,
-  ): Promise<Response> {
+  ): Promise<WorkerResponse> {
     Object.assign(process.env, env);
 
     const url = new URL(request.url);
@@ -56,10 +57,10 @@ export default {
       if (!handler.fetch) {
         throw new Error("Cloudflare HTTP server handler is unavailable");
       }
-      return handler.fetch(request, env, ctx);
+      return handler.fetch(request, env, ctx) as unknown as WorkerResponse;
     }
 
     // Serve static frontend assets and SPA routes via Cloudflare Workers Assets
-    return env.ASSETS.fetch(request as unknown as Request);
+    return env.ASSETS.fetch(request as any) as unknown as WorkerResponse;
   },
 };
