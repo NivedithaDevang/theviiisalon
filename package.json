@@ -21,6 +21,6 @@
     "deploy:backend": "npm run build:backend && cd backend && wrangler deploy"
   },
   "devDependencies": {
-    "wrangler": "^3.114.0"
+    "wrangler": "^4.0.0"
   }
 }
