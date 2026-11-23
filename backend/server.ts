@@ -20,8 +20,15 @@ function initApp(): Promise<ReturnType<typeof httpServerHandler>> {
   if (!initPromise) {
     initPromise = (async () => {
       const port = Number(process.env.SERVER_PORT || SERVER_PORT) || 3000;
-      await connectDB();
-      await authModel.ensureDefaultAdmin();
+      try {
+        await connectDB();
+        await authModel.ensureDefaultAdmin();
+      } catch (dbError) {
+        console.error(
+          "Database connection failed at startup. Please verify DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT environment variables:",
+          dbError,
+        );
+      }
       app.listen(port, () => {
         console.log(`Server running on port ${port}`);
       });
