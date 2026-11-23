@@ -117,21 +117,84 @@ async function resolveServicesDetails(
 
 // POST /api/bookings
 export const createBooking = async (req: Request, res: Response): Promise<void> => {
-  const connection = await db.getConnection();
+  const { name, phone, email, serviceId, serviceName, price, services, date, time, notes } = req.body;
+  const cleanEmail = typeof email === "string" ? email.trim() : "";
+  const cleanPhone = String(phone || "").trim();
+  const cleanName = String(name || "").trim();
+  const cleanNotes = notes ? String(notes).trim() : null;
+
+  if (!cleanName || !cleanPhone || !cleanEmail || (!serviceId && (!services || services.length === 0)) || !date || !time) {
+    res.status(400).json({ success: false, message: "Name, phone, email, service, date, and time are required." });
+    return;
+  }
+
+  if (!EMAIL_REGEX.test(cleanEmail)) {
+    res.status(400).json({ success: false, message: "Please provide a valid email address for your booking confirmation." });
+    return;
+  }
+
+  let connection: PoolConnection | null = null;
   try {
-    const { name, phone, email, serviceId, serviceName, price, services, date, time, notes } = req.body;
-    const cleanEmail = typeof email === "string" ? email.trim() : "";
+    connection = await db.getConnection();
+  } catch (dbErr) {
+    console.warn("Database connection unavailable, falling back to direct notification workflow:", dbErr);
+  }
 
-    if (!name || !phone || !cleanEmail || (!serviceId && (!services || services.length === 0)) || !date || !time) {
-      res.status(400).json({ success: false, message: "Name, phone, email, service, date, and time are required." });
-      return;
+  // Fallback flow when MySQL is unreachable (e.g. running on Cloudflare without external DB access)
+  if (!connection) {
+    const rawServices: IncomingServiceItem[] = Array.isArray(services) && services.length > 0
+      ? services.map((s: any, idx: number) => ({
+          id: Number(s.id) || idx + 1,
+          name: String(s.name || "Salon Service"),
+          price: Number(s.price) || 0,
+          category: s.category ? String(s.category) : undefined,
+        }))
+      : [{ id: Number(serviceId) || 1, name: String(serviceName || "Salon Service"), price: Number(price) || 0 }];
+
+    const combinedName = rawServices.map((s) => s.name).join(", ").slice(0, 500);
+    const totalPrice = rawServices.reduce((sum, s) => sum + s.price, 0);
+    const totalDuration = rawServices.length * 45;
+    const reference = generateBookingReference();
+
+    let emailDelivery: { client: "SENT" | "FAILED" | "NOT_PROVIDED"; admin: "SENT" | "FAILED" };
+    try {
+      emailDelivery = await sendBookingEmails({
+        reference,
+        name: cleanName,
+        phone: cleanPhone,
+        clientEmail: cleanEmail,
+        services: rawServices,
+        serviceName: combinedName,
+        totalPrice,
+        date,
+        time,
+        notes: cleanNotes,
+      });
+    } catch (emailError) {
+      console.error("Booking email dispatch failed in fallback mode:", emailError);
+      emailDelivery = {
+        client: cleanEmail ? "FAILED" : "NOT_PROVIDED",
+        admin: "FAILED",
+      };
     }
 
-    if (!EMAIL_REGEX.test(cleanEmail)) {
-      res.status(400).json({ success: false, message: "Please provide a valid email address for your booking confirmation." });
-      return;
-    }
+    res.status(201).json({
+      success: true,
+      data: {
+        id: Date.now(),
+        reference,
+        name: cleanName,
+        serviceName: combinedName,
+        date,
+        time,
+        bill_amount: totalPrice,
+        emailDelivery,
+      },
+    });
+    return;
+  }
 
+  try {
     const [conflict] = await connection.query<RowDataPacket[]>(
       `SELECT id FROM bookings
        WHERE appointment_date = ?
@@ -147,10 +210,6 @@ export const createBooking = async (req: Request, res: Response): Promise<void> 
     }
 
     await connection.beginTransaction();
-
-    const cleanPhone = String(phone).trim();
-    const cleanName = String(name).trim();
-    const cleanNotes = notes ? String(notes).trim() : null;
 
     const [existingCustomer] = await connection.query<RowDataPacket[]>(
       `SELECT id FROM customers WHERE phone = ? LIMIT 1`,
@@ -238,11 +297,17 @@ export const createBooking = async (req: Request, res: Response): Promise<void> 
       },
     });
   } catch (err) {
-    await connection.rollback();
+    if (connection) {
+      try {
+        await connection.rollback();
+      } catch {}
+    }
     console.error("Create booking error:", err);
     res.status(500).json({ success: false, message: "Failed to reserve appointment." });
   } finally {
-    connection.release();
+    if (connection) {
+      connection.release();
+    }
   }
 };
 

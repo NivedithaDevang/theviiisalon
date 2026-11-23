@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { serviceModel, ServiceInput } from "../model/serviceModel.js";
+import { FALLBACK_SERVICES } from "../utils/defaultServices.js";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -59,8 +60,8 @@ export const getServices = async (_req: Request, res: Response): Promise<void> =
     const services = await serviceModel.getAllServices();
     res.status(200).json({ success: true, data: services });
   } catch (error) {
-    console.error("Get public services error:", error);
-    res.status(500).json({ success: false, message: "Failed to load salon services." });
+    console.warn("Database unavailable, serving published catalog services:", error);
+    res.status(200).json({ success: true, data: FALLBACK_SERVICES });
   }
 };
 
