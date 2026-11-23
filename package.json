@@ -1,0 +1,26 @@
+{
+  "name": "the-viii-salon",
+  "version": "1.0.0",
+  "private": true,
+  "description": "The VIII Salon - Customer Website and Booking API with Cloudflare Workers Support",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace=frontend && npm run build --workspace=backend",
+    "build:frontend": "npm run build --workspace=frontend",
+    "build:backend": "npm run build --workspace=backend",
+    "dev": "npm run dev --workspace=frontend",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "dev:backend": "npm run dev --workspace=backend",
+    "start": "npm run start --workspace=backend",
+    "deploy": "npm run build && wrangler deploy",
+    "deploy:unified": "npm run build && wrangler deploy",
+    "deploy:frontend": "npm run build:frontend && cd frontend && wrangler deploy",
+    "deploy:backend": "npm run build:backend && cd backend && wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^3.114.0"
+  }
+}

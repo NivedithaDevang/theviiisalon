@@ -2,11 +2,11 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export const database = {
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  port: Number(process.env.DB_PORT),
+  get host() { return process.env.DB_HOST; },
+  get user() { return process.env.DB_USER; },
+  get password() { return process.env.DB_PASSWORD; },
+  get database() { return process.env.DB_NAME; },
+  get port() { return Number(process.env.DB_PORT) || 3306; },
 };
 
 export const SERVER_PORT = process.env.PORT;
@@ -16,3 +16,4 @@ export const DB_HOST = process.env.DB_HOST!;
 export const DB_USER = process.env.DB_USER!;
 export const DB_NAME = process.env.DB_NAME!;
 export const REACTURL = process.env.REACT_URL;
+

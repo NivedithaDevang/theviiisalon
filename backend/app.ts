@@ -6,10 +6,11 @@ import router from "./routes/index.js";
 
 const app: Application = express();
 
-const configuredOrigins = (REACTURL ?? "")
-  .split(",")
-  .map((origin) => origin.trim().replace(/\/+$/, ""))
-  .filter(Boolean);
+const getConfiguredOrigins = (): string[] =>
+  (process.env.REACT_URL || REACTURL || "")
+    .split(",")
+    .map((origin) => origin.trim().replace(/\/+$/, ""))
+    .filter(Boolean);
 
 const corsOptions: CorsOptions = {
   origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
@@ -22,6 +23,7 @@ const corsOptions: CorsOptions = {
     const isCloudflarePreview =
       /^https:\/\/[a-z0-9-]+\.theviiisalon\.pages\.dev$/.test(cleanOrigin);
     const isLocalFrontend = cleanOrigin === "http://localhost:5173";
+    const configuredOrigins = getConfiguredOrigins();
 
     if (
       configuredOrigins.includes(cleanOrigin) ||

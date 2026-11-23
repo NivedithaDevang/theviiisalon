@@ -29,6 +29,59 @@ Run `backend/schema.sql` against your MySQL server before starting the backend. 
 
 ## Deployment
 
+### Cloudflare Deployment
+
+The project is configured as an npm monorepo with root `package.json` and Cloudflare Wrangler configurations for unified or standalone deployment.
+
+#### Option 1: Unified Cloudflare Worker (Recommended)
+Host both the React frontend (static assets) and Express API on a single Cloudflare Worker using Cloudflare Workers with Assets:
+
+1. **Build & Deploy from root**:
+   ```powershell
+   npm install
+   npm run build
+   npx wrangler deploy
+   ```
+2. **Cloudflare Git Integration (Automated Builds)**:
+   - **Root directory**: `/` (leave as root)
+   - **Build command**: `npm run build`
+   - **Build output directory**: `.wrangler/dist` or left empty for Workers
+3. **Environment Secrets**: Set your secrets in Cloudflare Dashboard (Settings > Variables and Secrets) or via CLI:
+   ```powershell
+   npx wrangler secret put DB_HOST
+   npx wrangler secret put DB_USER
+   npx wrangler secret put DB_PASSWORD
+   npx wrangler secret put DB_NAME
+   npx wrangler secret put JWT_SECRET
+   npx wrangler secret put ADMIN_EMAIL
+   npx wrangler secret put ADMIN_DEFAULT_PASSWORD
+   npx wrangler secret put SMTP_HOST
+   npx wrangler secret put SMTP_PORT
+   npx wrangler secret put SMTP_USER
+   npx wrangler secret put SMTP_PASS
+   npx wrangler secret put ADMIN_NOTIFY_EMAIL
+   ```
+
+#### Option 2: Separate Deployments (Frontend on Pages / Worker & Backend on Worker)
+- **Frontend** (`frontend/wrangler.jsonc`):
+  ```powershell
+  cd frontend
+  npm run build
+  npx wrangler deploy
+  ```
+  Set `VITE_API_URL` to your backend Worker domain during the build.
+- **Backend** (`backend/wrangler.jsonc`):
+  ```powershell
+  cd backend
+  npm run build
+  npx wrangler deploy
+  ```
+  Set `REACT_URL` to your frontend domain in the backend Worker secrets.
+
+---
+
+### Traditional Node.js Deployment
+
 Deploy the frontend and backend as separate services unless your host is configured to proxy `/api` to the backend:
 
 1. Deploy `backend/` as a Node.js service. Build with `npm run build` and start with `npm start`. Configure the backend environment variables from `backend/.env.example`, including a reachable MySQL database and valid SMTP credentials.

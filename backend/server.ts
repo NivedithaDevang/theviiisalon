@@ -10,6 +10,7 @@ import type {
   ExecutionContext,
   IncomingRequestCfProperties,
   Request as WorkerRequest,
+  Fetcher,
 } from "@cloudflare/workers-types";
 
 let initPromise: Promise<ReturnType<typeof httpServerHandler>> | null = null;
@@ -42,14 +43,23 @@ if (isDirectExecution) {
 export default {
   async fetch(
     request: WorkerRequest<unknown, IncomingRequestCfProperties<unknown>>,
-    env: Record<string, unknown>,
+    env: Record<string, unknown> & { ASSETS?: Fetcher },
     ctx: ExecutionContext,
   ): Promise<Response> {
     Object.assign(process.env, env);
-    const handler = await initApp();
-    if (!handler.fetch) {
-      throw new Error("Cloudflare HTTP server handler is unavailable");
+
+    const url = new URL(request.url);
+
+    // If request is for an API route or ASSETS binding is not configured, delegate to Express handler
+    if (url.pathname.startsWith("/api") || !env.ASSETS) {
+      const handler = await initApp();
+      if (!handler.fetch) {
+        throw new Error("Cloudflare HTTP server handler is unavailable");
+      }
+      return handler.fetch(request, env, ctx);
     }
-    return handler.fetch(request, env, ctx);
+
+    // Serve static frontend assets and SPA routes via Cloudflare Workers Assets
+    return env.ASSETS.fetch(request as unknown as Request);
   },
 };

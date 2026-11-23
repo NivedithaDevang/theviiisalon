@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc",
     "dev": "npm run build && node --watch dist/server.js",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "deploy": "wrangler deploy"
   },
   "keywords": [],
   "author": "",
@@ -33,6 +34,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^26.6.6",
     "@types/nodemailer": "^8.0.2",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "wrangler": "^3.114.0"
   }
 }
