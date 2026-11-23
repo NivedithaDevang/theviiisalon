@@ -1,23 +1,41 @@
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+// @ts-expect-error Cloudflare injects this virtual module at runtime.
+import { httpServerHandler } from "cloudflare:node";
 import app from "./app.js";
 import { connectDB } from "./config/database.js";
 import { SERVER_PORT } from "./config/env.js";
 import { authModel } from "./model/authModel.js";
-const port = Number(SERVER_PORT) || 3000;
-async function startServer() {
-    await connectDB();
-    await authModel.ensureDefaultAdmin();
-    app.listen(port, () => {
-        console.log(`Server running on port ${port}`);
-    });
+let initPromise = null;
+function initApp() {
+    if (!initPromise) {
+        initPromise = (async () => {
+            const port = Number(process.env.SERVER_PORT || SERVER_PORT) || 3000;
+            await connectDB();
+            await authModel.ensureDefaultAdmin();
+            app.listen(port, () => {
+                console.log(`Server running on port ${port}`);
+            });
+            return httpServerHandler({ port });
+        })();
+    }
+    return initPromise;
 }
 const isDirectExecution = process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1]);
 if (isDirectExecution) {
-    startServer().catch((error) => {
+    initApp().catch((error) => {
         console.error("Server startup failed:", error);
         process.exit(1);
     });
 }
-export default app;
+export default {
+    async fetch(request, env, ctx) {
+        Object.assign(process.env, env);
+        const handler = await initApp();
+        if (!handler.fetch) {
+            throw new Error("Cloudflare HTTP server handler is unavailable");
+        }
+        return handler.fetch(request, env, ctx);
+    },
+};
 //# sourceMappingURL=server.js.map

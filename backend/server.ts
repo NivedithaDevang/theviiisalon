@@ -6,19 +6,24 @@ import app from "./app.js";
 import { connectDB } from "./config/database.js";
 import { SERVER_PORT } from "./config/env.js";
 import { authModel } from "./model/authModel.js";
-import type { ExecutionContext } from "@cloudflare/workers-types";
+import type {
+  ExecutionContext,
+  IncomingRequestCfProperties,
+  Request as WorkerRequest,
+} from "@cloudflare/workers-types";
 
-const port = Number(SERVER_PORT) || 3000;
+let initPromise: Promise<ReturnType<typeof httpServerHandler>> | null = null;
 
-let initPromise: Promise<void> | null = null;
-function initApp(): Promise<void> {
+function initApp(): Promise<ReturnType<typeof httpServerHandler>> {
   if (!initPromise) {
     initPromise = (async () => {
+      const port = Number(process.env.SERVER_PORT || SERVER_PORT) || 3000;
       await connectDB();
       await authModel.ensureDefaultAdmin();
       app.listen(port, () => {
         console.log(`Server running on port ${port}`);
       });
+      return httpServerHandler({ port });
     })();
   }
   return initPromise;
@@ -34,13 +39,17 @@ if (isDirectExecution) {
   });
 }
 
-const workerHandler = httpServerHandler({ port });
-
 export default {
-  async fetch(request: Request, env: Record<string, unknown>, ctx: ExecutionContext): Promise<Response> {
-    // Pass Cloudflare Runtime Secrets/Variables into process.env for ./config/env.js
+  async fetch(
+    request: WorkerRequest<unknown, IncomingRequestCfProperties<unknown>>,
+    env: Record<string, unknown>,
+    ctx: ExecutionContext,
+  ): Promise<Response> {
     Object.assign(process.env, env);
-    await initApp();
-    return workerHandler.fetch(request, env, ctx);
+    const handler = await initApp();
+    if (!handler.fetch) {
+      throw new Error("Cloudflare HTTP server handler is unavailable");
+    }
+    return handler.fetch(request, env, ctx);
   },
 };
